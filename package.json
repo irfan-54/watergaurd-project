@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^5.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "dev-all": "concurrently \"cd backend && python main.py\" \"cd frontend && npm run dev\""
+  }
+}
