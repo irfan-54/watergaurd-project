@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
-import L from 'leaflet'
 
 function CreateReport() {
   const [description, setDescription] = useState('')
@@ -31,18 +29,15 @@ function CreateReport() {
 
   const handleUseMyLocation = async () => {
     try {
-      // Try browser geolocation first
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const lat = pos.coords.latitude
             const lng = pos.coords.longitude
-            // Sanity check - if coords look wrong (e.g. Korea), use IP fallback
             setPosition({ lat, lng })
             fetchLocationName(lat, lng)
           },
           async () => {
-            // Permission denied - use IP fallback
             await useIPLocation()
           },
           { timeout: 5000 }
@@ -72,13 +67,13 @@ function CreateReport() {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-      );
-      const data = await res.json();
+      )
+      const data = await res.json()
       if (data.display_name) {
-        setLocationName(data.display_name);
+        setLocationName(data.display_name)
       }
     } catch (error) {
-      console.error("Reverse geocoding failed", error);
+      console.error('Reverse geocoding failed', error)
     }
   }
 
@@ -91,98 +86,9 @@ function CreateReport() {
         fetchLocationName(lat, lng)
       },
     })
-
     return null
   }
 
-  const handleSubmit = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setError('')
-  setSuccess('')
-
-  if (!position) {
-    setError('Please select a location on the map.')
-    setLoading(false)
-    return
-  }
-
-  try {
-    let imageUrl = null
-
-    if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop()
-      const fileName = `${Date.now()}.${fileExt}` 
-      const { data, error: uploadError } = await supabase.storage
-        .from('report-images')
-        .upload(fileName, imageFile)
-
-      if (uploadError) throw uploadError.message
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('report-images')
-        .getPublicUrl(fileName)
-
-      imageUrl = publicUrl
-    }
-
-    // Call AI classification
-    let category = 'other'
-    let risk_level = 'LOW'
-
-    try {
-      const aiResponse = await fetch('http://127.0.0.1:8000/classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: description })
-      })
-      const aiData = await aiResponse.json()
-      category = aiData.category || 'other'
-      risk_level = aiData.risk_level || 'LOW'
-    } catch (aiErr) {
-      console.log('AI classification failed, using defaults')
-    }
-
-    const { error: insertError } = await supabase
-      .from('reports')
-      .insert({
-        description,
-        image_url: imageUrl,
-        latitude: position.lat,
-        longitude: position.lng,
-        user_id: user.id,
-        status: 'OPEN',
-        category: category,
-        risk_level: risk_level,
-        created_at: new Date().toISOString()
-      })
-
-    if (insertError) throw insertError.message
-
-    setSuccess('Report submitted successfully!')
-    setTimeout(() => {
-      navigate('/citizen')
-    }, 2000)
-
-  } catch (err) {
-    setError(err.message || 'Failed to submit report')
-  } finally {
-    setLoading(false)
-  }
-}
-
-  const handleFileChange = (e) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      if (files.length > 1) {
-        setError('Only 1 image allowed per report')
-        return
-      }
-      setImageFile(files[0])
-    }
-  }
-
-  // Add this component inside CreateReport, before the return
   const FlyToLocation = ({ position }) => {
     const map = useMap()
     useEffect(() => {
@@ -196,12 +102,72 @@ function CreateReport() {
     return null
   }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    if (!position) {
+      setError('Please select a location on the map.')
+      setLoading(false)
+      return
+    }
+
+    if (!imageFile) {
+      setError('Please upload an image of the issue.')
+      setLoading(false)
+      return
+    }
+
+    try {
+      // ✅ Send everything to /reports as FormData
+      // Backend handles: NLP + CLIP AI analysis + Supabase insert
+      const formData = new FormData()
+      formData.append('description', description)
+      formData.append('latitude', position.lat.toString())
+      formData.append('longitude', position.lng.toString())
+      formData.append('image', imageFile)
+
+      const response = await fetch('http://127.0.0.1:8000/reports', {
+        method: 'POST',
+        body: formData
+        // ✅ Do NOT set Content-Type header — browser sets it automatically with boundary
+      })
+
+      const data = await response.json()
+
+      if (data.status === 'success') {
+        setSuccess('Report submitted successfully!')
+        setTimeout(() => navigate('/citizen'), 2000)
+      } else {
+        throw new Error(data.message || data.error || 'Failed to submit report')
+      }
+
+    } catch (err) {
+      setError(err.message || 'Failed to submit report')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleFileChange = (e) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      if (files.length > 1) {
+        setError('Only 1 image allowed per report')
+        return
+      }
+      setImageFile(files[0])
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white shadow-lg rounded-xl p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Create Report</h1>
-          
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
               {error}
@@ -231,13 +197,14 @@ function CreateReport() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image (optional)
+                Image <span className="text-red-500">*</span>
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
 
@@ -287,7 +254,7 @@ function CreateReport() {
               >
                 {loading ? 'Submitting...' : 'Submit Report'}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => navigate('/citizen')}
