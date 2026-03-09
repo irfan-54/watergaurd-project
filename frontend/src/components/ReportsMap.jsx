@@ -168,27 +168,27 @@ function ReportsMap() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Water Complaints Map</h2>
-        <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">
-          <div className="text-gray-600">Loading map...</div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Water Complaints Map</h2>
+        <div className="flex items-center justify-center h-96 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <div className="text-gray-600 dark:text-gray-400">Loading map...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Water Complaints Map</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Water Complaints Map</h2>
       
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
           <select
             value={filters.category}
             onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           >
             <option value="All">All</option>
             <option value="Leakage">Leakage</option>
@@ -199,11 +199,11 @@ function ReportsMap() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Risk Level</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Level</label>
           <select
             value={filters.riskLevel}
             onChange={(e) => handleFilterChange('riskLevel', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           >
             <option value="All">All</option>
             <option value="High">High</option>
@@ -213,11 +213,11 @@ function ReportsMap() {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
           <select
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           >
             <option value="All">All</option>
             <option value="Open">Open</option>
@@ -230,15 +230,15 @@ function ReportsMap() {
       {/* Legend */}
       <div className="mb-4">
         <div className="flex flex-wrap items-center gap-4 text-sm">
-          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-blue-500"></div><span>Low (1–2)</span></div>
-          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-green-500"></div><span>Medium (3–5)</span></div>
-          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-yellow-500"></div><span>High (6–10)</span></div>
-          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-orange-500"></div><span>Very High (11–15)</span></div>
-          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-red-500"></div><span>Extreme (16+)</span></div>
+          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-blue-500"></div><span className="text-gray-700 dark:text-gray-300">Low (1–2)</span></div>
+          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-green-500"></div><span className="text-gray-700 dark:text-gray-300">Medium (3–5)</span></div>
+          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-yellow-500"></div><span className="text-gray-700 dark:text-gray-300">High (6–10)</span></div>
+          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-orange-500"></div><span className="text-gray-700 dark:text-gray-300">Very High (11–15)</span></div>
+          <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-red-500"></div><span className="text-gray-700 dark:text-gray-300">Extreme (16+)</span></div>
         </div>
       </div>
 
-      <div className="h-96 rounded-lg overflow-hidden border border-gray-200">
+      <div className="h-96 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
         <MapContainer
           center={[13.0827, 80.2707]}
           zoom={12}

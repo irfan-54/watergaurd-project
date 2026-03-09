@@ -1,35 +1,39 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { getTheme, setTheme, getEffectiveTheme } from '../theme'
 
 const ThemeContext = createContext()
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => {
-    // Check localStorage on load
-    const savedTheme = localStorage.getItem('theme')
-    return savedTheme || 'light'
-  })
+  const [theme, setThemeState] = useState(() => getTheme())
+  const [effectiveTheme, setEffectiveThemeState] = useState(() => getEffectiveTheme())
 
   useEffect(() => {
-    // Apply theme to document
-    const root = document.documentElement
-    
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
+    // Listen for theme changes
+    const handleThemeChange = () => {
+      setThemeState(getTheme())
+      setEffectiveThemeState(getEffectiveTheme())
     }
-    
-    // Save to localStorage
-    localStorage.setItem('theme', theme)
-  }, [theme])
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light')
+    // Listen for storage changes (in case theme changes from another tab)
+    window.addEventListener('storage', handleThemeChange)
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange)
+    }
+  }, [])
+
+  const changeTheme = (newTheme) => {
+    setTheme(newTheme)           // applies class to DOM (from theme.js)
+    setThemeState(newTheme)
+    setEffectiveThemeState(newTheme) // ✅ use newTheme directly, don't re-read
   }
 
   const value = {
     theme,
-    toggleTheme
+    effectiveTheme,
+    setTheme: changeTheme,
+    isDark: effectiveTheme === 'dark',
+    isLight: effectiveTheme === 'light'
   }
 
   return (

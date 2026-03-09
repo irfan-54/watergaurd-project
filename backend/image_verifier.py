@@ -11,10 +11,12 @@ def load_clip_model():
     """Load CLIP model and processor once at startup"""
     global clip_model, clip_processor
     if clip_model is None:
-        print("Loading CLIP model...")
-        clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-        clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-        print("CLIP model loaded successfully")
+        try:
+            clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        except Exception as e:
+            clip_model = None
+            clip_processor = None
 
 # Load CLIP model automatically when module is imported
 load_clip_model()
@@ -34,10 +36,33 @@ def verify_image(image_bytes):
     """
     try:
         # Ensure CLIP model is loaded
-        load_clip_model()
+        if clip_model is None or clip_processor is None:
+            load_clip_model()
+        
+        if clip_model is None or clip_processor is None:
+            return {
+                "image_prediction": "other",
+                "image_confidence": 0.0
+            }
+        
+        # Validate image bytes
+        if not image_bytes or len(image_bytes) == 0:
+            return {
+                "image_prediction": "other", 
+                "image_confidence": 0.0
+            }
         
         # Load and process image
-        image = Image.open(io.BytesIO(image_bytes))
+        try:
+            image = Image.open(io.BytesIO(image_bytes))
+            # Convert to RGB if necessary
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+        except Exception as e:
+            return {
+                "image_prediction": "other",
+                "image_confidence": 0.0
+            }
         
         # Define prompts for water-related categories
         prompts = [
@@ -82,7 +107,6 @@ def verify_image(image_bytes):
         }
         
     except Exception as e:
-        print(f"Error in image verification: {e}")
         # Return fallback values if verification fails
         return {
             "image_prediction": "other",

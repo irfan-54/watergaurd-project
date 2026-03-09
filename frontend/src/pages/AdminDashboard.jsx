@@ -1,7 +1,34 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
+import ReportModal from '../components/ReportModal'
+
+// Icon components for stats
+const ReportIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+)
+
+const AlertIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+
+const RiskIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
 
 function AdminDashboard() {
   const [reports, setReports] = useState([])
@@ -10,42 +37,13 @@ function AdminDashboard() {
   const [error, setError] = useState(null)
   const [startingWorkIds, setStartingWorkIds] = useState(new Set())
   const [deleteConfirmation, setDeleteConfirmation] = useState(null)
+  const [selectedReport, setSelectedReport] = useState(null)
   const [filters, setFilters] = useState({
     risk: '',
     category: '',
     status: ''
   })
   const navigate = useNavigate()
-
-  // CSS styles for table scrolling
-  const tableStyles = `
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      overflow-y: auto;
-      max-height: 600px;
-    }
-    .reports-table {
-      min-width: 1400px;
-    }
-    .sticky-header th {
-      position: sticky;
-      top: 0;
-      background: white;
-      z-index: 10;
-    }
-    .reports-table td:first-child,
-    .reports-table th:first-child {
-      position: sticky;
-      left: 0;
-      background: white;
-      z-index: 5;
-    }
-    .reports-table tbody tr:hover {
-      background-color: #f8fafc;
-      transition: background 0.15s ease;
-    }
-  `
 
   useEffect(() => {
     fetchReports()
@@ -194,26 +192,26 @@ function AdminDashboard() {
   const getRiskBadgeClass = (riskLevel) => {
     switch (riskLevel) {
       case 'HIGH':
-        return 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 px-2 py-1 rounded-full text-xs font-semibold'
       case 'MEDIUM':
-        return 'bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-1 rounded-full text-xs font-semibold'
       case 'LOW':
-        return 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-semibold'
       default:
-        return 'bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-semibold'
     }
   }
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'OPEN':
-        return 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-1 rounded-full text-xs font-semibold'
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-semibold'
       case 'RESOLVED':
-        return 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full text-xs font-semibold'
       default:
-        return 'bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-semibold'
     }
   }
 
@@ -224,9 +222,75 @@ function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading reports...</div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+          <Navbar />
+          <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="mb-8">
+              <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-48 animate-pulse"></div>
+              <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-96 mt-2 animate-pulse"></div>
+            </div>
+            
+            {/* Statistics Cards Skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                      <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-16 mt-2 animate-pulse"></div>
+                    </div>
+                    <div className="h-12 w-12 bg-gray-300 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters Skeleton */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
+              <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-32 animate-pulse mb-4"></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-10 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Table Skeleton */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="overflow-x-auto overflow-y-auto max-h-[420px] border rounded-xl">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-800">
+                    <tr>
+                      {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                        <th key={i} className="px-4 py-3">
+                          <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4, 5].map((row) => (
+                      <tr key={row} className="border-t border-gray-200 dark:border-gray-700">
+                        {[1, 2, 3, 4, 5, 6, 7].map((col) => (
+                          <td key={col} className="px-4 py-4">
+                            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     )
   }
 
@@ -236,33 +300,87 @@ function AdminDashboard() {
   const uniqueStatuses = [...new Set(reports.map(r => r.status))].filter(Boolean)
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: tableStyles }} />
-      <div className="min-h-screen bg-gray-50">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.25 }}
+    >
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
-      <div className="py-8">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-2">Manage and resolve water issue reports</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">Manage and resolve water issue reports</p>
           </div>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex justify-between items-center">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
               <span>{error}</span>
-              <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 font-bold">✕</button>
+              <button onClick={() => setError(null)} className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold">✕</button>
             </div>
           )}
+
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Reports</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{reports.length}</p>
+                </div>
+                <div className="text-blue-500 dark:text-blue-400">
+                  <ReportIcon />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Open Reports</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{reports.filter(r => r.status === 'OPEN').length}</p>
+                </div>
+                <div className="text-yellow-500 dark:text-yellow-400">
+                  <AlertIcon />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">In Progress</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{reports.filter(r => r.status === 'IN_PROGRESS').length}</p>
+                </div>
+                <div className="text-blue-500 dark:text-blue-400">
+                  <AlertIcon />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Resolved</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{reports.filter(r => r.status === 'RESOLVED').length}</p>
+                </div>
+                <div className="text-green-500 dark:text-green-400">
+                  <CheckIcon />
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Delete Confirmation Modal */}
           {deleteConfirmation && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Report</h3>
-                <p className="text-gray-600 mb-6">Are you sure you want to delete this report? This action cannot be undone.</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Delete Report</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">Are you sure you want to delete this report? This action cannot be undone.</p>
                 <div className="flex space-x-3 justify-end">
                   <button
                     onClick={cancelDelete}
-                    className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -277,15 +395,16 @@ function AdminDashboard() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Filters</h2>
+          {/* Filters Section */}
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Risk Level</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Risk Level</label>
                 <select
                   value={filters.risk}
                   onChange={(e) => handleFilterChange('risk', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Risks</option>
                   <option value="HIGH">HIGH</option>
@@ -294,11 +413,11 @@ function AdminDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
                   value={filters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Categories</option>
                   <option value="leakage">leakage</option>
@@ -308,11 +427,11 @@ function AdminDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                 <select
                   value={filters.status}
                   onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Statuses</option>
                   <option value="OPEN">OPEN</option>
@@ -322,85 +441,83 @@ function AdminDashboard() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          {/* Reports Table */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             {filteredReports.length === 0 ? (
               <div className="text-center py-12">
-                <div className="text-xl text-gray-600 mb-4">No reports found</div>
-                <p className="text-gray-500">Try adjusting your filters or check back later.</p>
+                <div className="text-xl text-gray-600 dark:text-gray-400 mb-4">No reports found</div>
+                <p className="text-gray-500 dark:text-gray-500">Try adjusting your filters or check back later.</p>
               </div>
             ) : (
-              <div className="table-container">
-                <table className="reports-table min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50 sticky-header">
+              <div className="overflow-x-auto overflow-y-auto max-h-[420px] border rounded-xl">
+                <table className="w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="sticky top-0 z-10 bg-gray-800 text-gray-300 text-sm uppercase tracking-wider">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Report ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Risk Level</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Text AI %</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Image AI %</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Final AI %</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Location</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Created At</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky top-0 bg-gray-50 z-10">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Category</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Risk</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredReports.map((report) => (
-                      <tr key={report.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.id}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={report.description}>
+                      <tr
+                        key={report.id}
+                        onClick={() => setSelectedReport(report)}
+                        className="cursor-pointer hover:bg-gray-700/40 transition"
+                      >
+                        <td className="px-4 py-4 text-xs text-gray-900 dark:text-gray-100 whitespace-nowrap font-mono">#{report.id.slice(0,8)}</td>
+                        <td className="px-4 py-4 text-sm text-gray-900 dark:text-gray-100 truncate" title={report.description}>
                           {report.description}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">{report.category || 'other'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 capitalize">{report.category || 'other'}</td>
+                        <td className="px-4 py-4 whitespace-nowrap">
                           <span className={getRiskBadgeClass(report.risk_level)}>
                             {report.risk_level}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {report.text_confidence ? `${Math.round(report.text_confidence * 100)}%` : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {report.image_confidence ? `${Math.round(report.image_confidence * 100)}%` : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {report.final_confidence ? `${Math.round(report.final_confidence * 100)}%` : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          📍 {report.latitude?.toFixed(4)}, {report.longitude?.toFixed(4)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-4 whitespace-nowrap">
                           <span className={getStatusBadgeClass(report.status)}>
                             {report.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                           {new Date(report.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-1">
                           {report.status === 'OPEN' && (
                             <button
-                              onClick={() => handleStartWork(report.id)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleStartWork(report.id)
+                              }}
                               disabled={startingWorkIds.has(report.id)}
-                              className="text-blue-600 hover:text-blue-900 px-3 py-1 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                              {startingWorkIds.has(report.id) ? 'Starting...' : 'Start Work'}
+                              {startingWorkIds.has(report.id) ? 'Starting...' : 'Start'}
                             </button>
                           )}
                           {report.status === 'IN_PROGRESS' && (
                             <button
-                              onClick={() => handleResolve(report.id)}
-                              className="text-green-600 hover:text-green-900 px-3 py-1 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleResolve(report.id)
+                              }}
+                              className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs transition-colors"
                             >
                               Resolve
                             </button>
                           )}
                           {(report.status === 'OPEN' || report.status === 'RESOLVED') && (
                             <button
-                              onClick={() => handleDelete(report.id)}
-                              className="text-red-600 hover:text-red-900 px-3 py-1 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(report.id)
+                              }}
+                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs transition-colors"
                             >
                               Delete
                             </button>
@@ -415,8 +532,16 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
-    </>
+      
+      {/* Report Modal */}
+      {selectedReport && (
+        <ReportModal
+          report={selectedReport}
+          isAdmin={true}
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
+    </motion.div>
   )
 }
 

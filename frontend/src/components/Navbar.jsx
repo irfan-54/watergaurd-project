@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
+import ThemeSwitcher from './ThemeSwitcher'
 
 function Navbar() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const pathname = location.pathname
   const { user, role } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, effectiveTheme } = useTheme()
   const [authUser, setAuthUser] = useState(null)
 
   useEffect(() => {
@@ -29,71 +32,92 @@ function Navbar() {
     navigate('/')
   }
 
+  const getActiveClass = (path) => {
+    return pathname === path
+      ? "bg-blue-600 text-white px-4 py-2 rounded-lg"
+      : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+  }
+
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 transition-colors">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2 text-xl font-bold text-blue-600 hover:opacity-80 transition-opacity">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16">
+          {/* LEFT: Logo */}
+          <div className="flex items-center justify-self-start">
+            <Link to="/" className="flex items-center gap-2 text-xl font-bold text-blue-600 dark:text-blue-400 hover:opacity-80 transition-opacity">
               💧 WaterGuard
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => navigate('/')}
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          {/* CENTER: Navigation Links */}
+          <div className="flex items-center justify-self-center gap-6">
+            <Link
+              to="/"
+              className={getActiveClass("/")}
             >
               Home
-            </button>
-            <button
-              onClick={() => navigate('/map')}
-              className="text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            </Link>
+            <Link
+              to="/map"
+              className={getActiveClass("/map")}
             >
               City Map
-            </button>
+            </Link>
+
+            {/* Admin-specific navigation */}
+            {authUser && role === 'admin' && (
+              <>
+                <Link
+                  to="/admin"
+                  className={getActiveClass("/admin")}
+                >
+                  Admin Dashboard
+                </Link>
+                <Link
+                  to="/analytics"
+                  className={getActiveClass("/analytics")}
+                >
+                  Analytics
+                </Link>
+              </>
+            )}
+
+            {/* Citizen-specific navigation */}
+            {authUser && role === 'citizen' && (
+              <Link
+                to="/citizen"
+                className={getActiveClass("/citizen")}
+              >
+                My Reports
+              </Link>
+            )}
+          </div>
+
+          {/* RIGHT: Theme Toggle + Authentication */}
+          <div className="flex items-center justify-self-end gap-3">
+            {/* Theme Switcher - Always visible */}
+            <ThemeSwitcher />
 
             {authUser ? (
-              // Authenticated navigation
+              // Authenticated user actions
               <>
                 {role === 'citizen' && (
-                  <>
-                    <button
-                      onClick={() => navigate('/citizen')}
-                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      My Reports
-                    </button>
-                    <button
-                      onClick={() => navigate('/create-report')}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      Create Report
-                    </button>
-                  </>
+                  <button
+                    onClick={() => navigate('/create-report')}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    Create Report
+                  </button>
                 )}
-
-                {role === 'admin' && (
-                  <>
-                    <button
-                      onClick={() => navigate('/admin')}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      Admin Dashboard
-                    </button>
-                    <button
-                      onClick={() => navigate('/analytics')}
-                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Analytics
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Logout
+                </button>
               </>
             ) : (
-              // Guest navigation
+              // Guest authentication - NO active highlighting
               <>
                 <button
                   onClick={() => navigate('/login')}
@@ -110,27 +134,6 @@ function Navbar() {
               </>
             )}
           </div>
-
-          {/* Right side: Dark mode + Logout (only for authenticated users) */}
-          {authUser && (
-            <div className="flex items-center gap-3">
-              {/* Dark Mode Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-lg"
-                title="Toggle dark mode"
-              >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </nav>

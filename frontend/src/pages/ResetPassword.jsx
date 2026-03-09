@@ -29,14 +29,14 @@ function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
         <div className="text-center mb-6">
           <div className="text-3xl">💧</div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-2">Reset Password</h1>
         </div>
-        {error && <div className="bg-red-100 text-red-700 px-3 py-2 rounded-md text-sm mb-4">{error}</div>}
-        {success && <div className="bg-green-100 text-green-700 px-3 py-2 rounded-md text-sm mb-4">{success}</div>}
+        {error && <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-3 py-2 rounded-md text-sm mb-4">{error}</div>}
+        {success && <div className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-2 rounded-md text-sm mb-4">{success}</div>}
         <form onSubmit={handleReset} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
