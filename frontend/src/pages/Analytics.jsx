@@ -29,10 +29,10 @@ const fadeUp = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-xl">
-      {label && <p className="text-xs font-medium mb-1 uppercase tracking-wider" style={{ color: '#6b7280' }}>{label}</p>}
+    <div style={{ background: 'rgba(15,20,35,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '10px 16px', backdropFilter: 'blur(10px)', boxShadow: '0 8px 25px rgba(0,0,0,0.4)' }}>
+      {label && <p style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.4)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</p>}
       {payload.map((p, i) => (
-        <p key={i} className="text-sm font-semibold" style={{ color: p.color || p.fill || '#6366f1' }}>
+        <p key={i} style={{ fontSize: 13, fontWeight: 600, color: p.color || p.fill || '#A78BFA', fontFamily: 'Inter, sans-serif' }}>
           {p.name ? `${p.name}: ` : ''}{p.value}
         </p>
       ))}
@@ -43,31 +43,42 @@ const CustomTooltip = ({ active, payload, label }) => {
 const PieTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{payload[0].name}</p>
-      <p className="text-sm font-bold text-gray-900 dark:text-white">{payload[0].value} reports</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{(payload[0].payload.percent * 100).toFixed(1)}%</p>
+    <div style={{ background: 'rgba(15,20,35,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '10px 16px', backdropFilter: 'blur(10px)', boxShadow: '0 8px 25px rgba(0,0,0,0.4)' }}>
+      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{payload[0].name}</p>
+      <p style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{payload[0].value} reports</p>
+      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{(payload[0].payload.percent * 100).toFixed(1)}%</p>
     </div>
   )
 }
 
-function KpiCard({ title, value, subtitle, icon, color, index }) {
+function KpiCard({ title, value, subtitle, icon, accent, index }) {
   return (
     <motion.div
       custom={index}
       variants={fadeUp}
       initial="hidden"
       animate="show"
-      className="relative bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group"
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: 16,
+        padding: '20px 18px',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'all 0.3s ease',
+        cursor: 'default',
+      }}
+      className="an-kpi-card"
     >
-      <div className={`absolute inset-x-0 top-0 h-0.5 ${color}`} />
-      <div className="flex items-start justify-between">
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: accent }} />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
         <div>
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white tabular-nums">{value}</p>
-          {subtitle && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{subtitle}</p>}
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{title}</p>
+          <p style={{ fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 800, fontFamily: 'Syne, sans-serif', color: 'white', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+          {subtitle && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{subtitle}</p>}
         </div>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${color.replace('bg-gradient-to-r', 'bg').split(' ')[0]} bg-opacity-10`}>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: `${accent}15`, border: `1px solid ${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
           {icon}
         </div>
       </div>
@@ -82,11 +93,18 @@ function ChartCard({ title, subtitle, children, index, fullWidth }) {
       variants={fadeUp}
       initial="hidden"
       animate="show"
-      className={`bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm ${fullWidth ? 'col-span-full' : ''}`}
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: 16,
+        padding: 24,
+        ...(fullWidth ? { gridColumn: '1 / -1' } : {}),
+      }}
     >
-      <div className="mb-5">
-        <h2 className="text-base font-bold text-gray-900 dark:text-white">{title}</h2>
-        {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>}
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: 'white' }}>{title}</h2>
+        {subtitle && <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{subtitle}</p>}
       </div>
       {children}
     </motion.div>
@@ -176,57 +194,80 @@ function Analytics() {
   }).filter(d => d.total > 0)
 
   const kpis = [
-    { title: 'Total Reports', value: totalReports, icon: '', color: 'bg-gradient-to-r from-blue-500 to-blue-600', subtitle: 'All time' },
-    { title: 'Open', value: openReports, icon: '', color: 'bg-gradient-to-r from-yellow-400 to-orange-500', subtitle: 'Awaiting action' },
-    { title: 'In Progress', value: inProgressReports, icon: '', color: 'bg-gradient-to-r from-blue-400 to-cyan-500', subtitle: 'Being handled' },
-    { title: 'Resolved', value: resolvedReports, icon: '', color: 'bg-gradient-to-r from-green-400 to-emerald-500', subtitle: 'Completed' },
-    { title: 'High Risk', value: highRiskReports, icon: '', color: 'bg-gradient-to-r from-red-500 to-rose-600', subtitle: 'Need priority' },
-    { title: 'Resolution Rate', value: `${resolutionRate}%`, icon: '', color: 'bg-gradient-to-r from-purple-500 to-violet-600', subtitle: 'Overall' },
+    { title: 'Total Reports', value: totalReports, icon: '📊', accent: '#3B82F6', subtitle: 'All time' },
+    { title: 'Open', value: openReports, icon: '📥', accent: '#F59E0B', subtitle: 'Awaiting action' },
+    { title: 'In Progress', value: inProgressReports, icon: '🔧', accent: '#06B6D4', subtitle: 'Being handled' },
+    { title: 'Resolved', value: resolvedReports, icon: '✅', accent: '#22C55E', subtitle: 'Completed' },
+    { title: 'High Risk', value: highRiskReports, icon: '🚨', accent: '#EF4444', subtitle: 'Need priority' },
+    { title: 'Resolution Rate', value: `${resolutionRate}%`, icon: '📈', accent: '#8B5CF6', subtitle: 'Overall' },
   ]
 
+  // Chart axis/grid style
+  const axisTickStyle = { fontSize: 10, fill: 'rgba(255,255,255,0.35)', fontFamily: 'Inter, sans-serif' }
+  const gridStroke = 'rgba(255,255,255,0.06)'
+
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6">
-        <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded-2xl w-64 animate-pulse" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {[...Array(6)].map((_, i) => <div key={i} className="h-28 bg-gray-300 dark:bg-gray-700 rounded-2xl animate-pulse" />)}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-300 dark:bg-gray-700 rounded-2xl animate-pulse" />)}
+    <>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');`}</style>
+      <div style={{ background: '#050B18', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+        <Navbar />
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '100px 16px 40px' }}>
+          <div style={{ height: 32, width: 200, background: 'rgba(255,255,255,0.06)', borderRadius: 12, marginBottom: 24 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16, marginBottom: 24 }}>
+            {[...Array(6)].map((_, i) => <div key={i} style={{ height: 100, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }} />)}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            {[...Array(4)].map((_, i) => <div key={i} style={{ height: 300, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }} />)}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 
   if (error) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-        <button onClick={fetchReports} className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">Retry</button>
+    <>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');`}</style>
+      <div style={{ background: '#050B18', minHeight: '100vh', fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#F87171', marginBottom: 16, fontSize: 14 }}>{error}</p>
+          <button onClick={fetchReports} style={{ padding: '10px 24px', background: '#3B82F6', color: 'white', borderRadius: 12, border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'Inter, sans-serif' }}>Retry</button>
+        </div>
       </div>
-    </div>
+    </>
   )
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <Navbar />
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .an-page { background: #050B18; min-height: 100vh; font-family: 'Inter', sans-serif; color: white; position: relative; overflow-x: hidden; }
+        .an-grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; }
+        .an-orb { position: fixed; border-radius: 50%; filter: blur(80px); animation: anFloat 8s ease-in-out infinite; pointer-events: none; }
+        @keyframes anFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.05)} }
+        .an-kpi-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.3) !important; box-shadow: 0 12px 40px rgba(59,130,246,0.1); }
+      `}</style>
 
-          {/* ── Page header ─────────────────────────────────────────────────── */}
-          <motion.div variants={fadeUp} custom={0} initial="hidden" animate="show">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Analytics</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Water issue reports — insights & trends</p>
+      <div className="an-page">
+        <div className="an-grid-bg" />
+        <div className="an-orb" style={{ width: 500, height: 500, background: 'rgba(59,130,246,0.08)', top: '-8%', right: '-12%' }} />
+        <div className="an-orb" style={{ width: 400, height: 400, background: 'rgba(139,92,246,0.06)', bottom: '5%', left: '-10%', animationDelay: '4s' }} />
+
+        <Navbar />
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '100px 16px 60px', position: 'relative', zIndex: 10 }}>
+
+          {/* Page header */}
+          <motion.div variants={fadeUp} custom={0} initial="hidden" animate="show" style={{ marginBottom: 28 }}>
+            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: 4 }}>Analytics</h1>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Water issue reports — insights & trends</p>
           </motion.div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 28 }}>
             {kpis.map((kpi, i) => <KpiCard key={kpi.title} {...kpi} index={i + 1} />)}
           </div>
 
           {/* Row 1: Trend + Category */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 20, marginBottom: 20 }}>
 
             {/* 14-day trend */}
             <ChartCard title="Report Trend" subtitle="Last 14 days" index={7}>
@@ -238,9 +279,9 @@ function Analytics() {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" className="dark:stroke-gray-700" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} interval={2} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="date" tick={axisTickStyle} tickLine={false} axisLine={false} interval={2} />
+                  <YAxis tick={axisTickStyle} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip content={<CustomTooltip />} cursor={false} />
                   <Area type="monotone" dataKey="reports" stroke="#3b82f6" strokeWidth={2.5} fill="url(#areaGrad)" dot={{ fill: '#3b82f6', r: 3 }} activeDot={{ r: 5 }} name="Reports" />
                 </AreaChart>
@@ -249,7 +290,7 @@ function Analytics() {
 
             {/* Category Pie */}
             <ChartCard title="Category Distribution" subtitle="By report type" index={8}>
-              <div className="flex items-center gap-4">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <ResponsiveContainer width="60%" height={240}>
                   <PieChart>
                     <Pie data={categoryData} cx="50%" cy="50%" outerRadius={100} innerRadius={50} dataKey="value" labelLine={false} label={renderCustomLabel}>
@@ -258,14 +299,14 @@ function Analytics() {
                     <Tooltip content={<PieTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="flex-1 space-y-2">
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {categoryData.map(d => (
-                    <div key={d.name} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-                        <span className="text-xs text-gray-600 dark:text-gray-400">{d.name}</span>
+                    <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: d.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{d.name}</span>
                       </div>
-                      <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{d.value}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{d.value}</span>
                     </div>
                   ))}
                 </div>
@@ -274,19 +315,19 @@ function Analytics() {
           </div>
 
           {/* Row 2: Risk + Status */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 20, marginBottom: 20 }}>
 
             {/* Risk Level */}
             <ChartCard title="Risk Level Distribution" subtitle="Report severity breakdown" index={9}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={riskData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }} barSize={48}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" className="dark:stroke-gray-700" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="name" tick={axisTickStyle} tickLine={false} axisLine={false} />
+                  <YAxis tick={axisTickStyle} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip content={<CustomTooltip />} cursor={false} />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Reports">
                     {riskData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                    <LabelList dataKey="count" position="top" style={{ fill: "#374151", fontSize: 11, fontWeight: 700 }} />
+                    <LabelList dataKey="count" position="top" style={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 700 }} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -296,13 +337,13 @@ function Analytics() {
             <ChartCard title="Status Overview" subtitle="Current pipeline state" index={10}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={statusData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }} barSize={48}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" className="dark:stroke-gray-700" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="name" tick={axisTickStyle} tickLine={false} axisLine={false} />
+                  <YAxis tick={axisTickStyle} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip content={<CustomTooltip />} cursor={false} />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]} name="Reports">
                     {statusData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                    <LabelList dataKey="count" position="top" style={{ fill: "#374151", fontSize: 11, fontWeight: 700 }} />
+                    <LabelList dataKey="count" position="top" style={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 700 }} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -311,70 +352,70 @@ function Analytics() {
 
           {/* Row 3: Resolution Rate by Category */}
           {resolutionByCategory.length > 0 && (
-            <ChartCard title="Resolution Rate by Category" subtitle="% of reports resolved per category" index={11} fullWidth>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={resolutionByCategory} margin={{ top: 20, right: 20, left: -10, bottom: 0 }} barGap={6}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" className="dark:stroke-gray-700" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip content={<CustomTooltip />} cursor={false} />
-                  <Bar dataKey="total" name="Total" fill="#e5e7eb" radius={[6, 6, 0, 0]} barSize={32} />
-                  <Bar dataKey="resolved" name="Resolved" fill="#10b981" radius={[6, 6, 0, 0]} barSize={32}>
-                    <LabelList dataKey="rate" position="top" formatter={(v) => `${v}%`} style={{ fill: '#10b981', fontSize: 11, fontWeight: 700 }} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="flex gap-4 mt-3 justify-end">
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-gray-200 dark:bg-gray-600" /><span className="text-xs text-gray-500">Total</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-emerald-500" /><span className="text-xs text-gray-500">Resolved</span></div>
-              </div>
-            </ChartCard>
+            <div style={{ marginBottom: 20 }}>
+              <ChartCard title="Resolution Rate by Category" subtitle="% of reports resolved per category" index={11} fullWidth>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={resolutionByCategory} margin={{ top: 20, right: 20, left: -10, bottom: 0 }} barGap={6}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                    <XAxis dataKey="name" tick={{ ...axisTickStyle, fontSize: 12 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={axisTickStyle} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
+                    <Bar dataKey="total" name="Total" fill="rgba(255,255,255,0.1)" radius={[6, 6, 0, 0]} barSize={32} />
+                    <Bar dataKey="resolved" name="Resolved" fill="#10b981" radius={[6, 6, 0, 0]} barSize={32}>
+                      <LabelList dataKey="rate" position="top" formatter={(v) => `${v}%`} style={{ fill: '#10b981', fontSize: 11, fontWeight: 700 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+                <div style={{ display: 'flex', gap: 16, marginTop: 12, justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 12, height: 12, borderRadius: 3, background: 'rgba(255,255,255,0.1)' }} /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Total</span></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><div style={{ width: 12, height: 12, borderRadius: 3, background: '#10b981' }} /><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Resolved</span></div>
+                </div>
+              </ChartCard>
+            </div>
           )}
 
           {/* Row 4: AI Processing + Quick Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
 
             {/* AI Stats */}
             <ChartCard title="AI Processing" subtitle="Model coverage" index={12}>
-              <div className="flex flex-col items-center justify-center h-40 gap-3">
-                <div className="relative w-28 h-28">
-                  <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="10" className="dark:stroke-gray-700" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 160, gap: 12 }}>
+                <div style={{ position: 'relative', width: 112, height: 112 }}>
+                  <svg width="112" height="112" style={{ transform: 'rotate(-90deg)' }} viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
                     <circle cx="50" cy="50" r="40" fill="none" stroke="#8b5cf6" strokeWidth="10"
                       strokeDasharray={`${aiRate * 2.51} 251`} strokeLinecap="round" />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-gray-900 dark:text-white">{aiRate}%</span>
-                    <span className="text-xs text-gray-400">processed</span>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: 'white' }}>{aiRate}%</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>processed</span>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500">{aiProcessed} of {totalReports} reports analysed by AI</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{aiProcessed} of {totalReports} reports analysed by AI</p>
               </div>
             </ChartCard>
 
             {/* Quick Insights */}
-            <div className="lg:col-span-2">
-              <ChartCard title="Quick Insights" subtitle="Key metrics at a glance" index={13}>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: 'Avg reports/day', value: last14Days.length ? (last14Days.reduce((s, d) => s + d.reports, 0) / 14).toFixed(1) : '0', icon: '📅', color: 'text-blue-500' },
-                    { label: 'Open backlog', value: openReports, icon: '📥', color: 'text-yellow-500' },
-                    { label: 'Active cases', value: inProgressReports, icon: '🔧', color: 'text-blue-500' },
-                    { label: 'Resolved total', value: resolvedReports, icon: '🏁', color: 'text-green-500' },
-                    { label: 'High priority', value: highRiskReports, icon: '🚨', color: 'text-red-500' },
-                    { label: 'AI coverage', value: `${aiRate}%`, icon: '🤖', color: 'text-purple-500' },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/40 rounded-xl">
-                      <span className="text-xl">{item.icon}</span>
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.label}</p>
-                        <p className={`text-lg font-black ${item.color}`}>{item.value}</p>
-                      </div>
+            <ChartCard title="Quick Insights" subtitle="Key metrics at a glance" index={13}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {[
+                  { label: 'Avg reports/day', value: last14Days.length ? (last14Days.reduce((s, d) => s + d.reports, 0) / 14).toFixed(1) : '0', icon: '📅', accent: '#60A5FA' },
+                  { label: 'Open backlog', value: openReports, icon: '📥', accent: '#FBBF24' },
+                  { label: 'Active cases', value: inProgressReports, icon: '🔧', accent: '#60A5FA' },
+                  { label: 'Resolved total', value: resolvedReports, icon: '🏁', accent: '#4ADE80' },
+                  { label: 'High priority', value: highRiskReports, icon: '🚨', accent: '#F87171' },
+                  { label: 'AI coverage', value: `${aiRate}%`, icon: '🤖', accent: '#A78BFA' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+                    <span style={{ fontSize: 20 }}>{item.icon}</span>
+                    <div>
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{item.label}</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: item.accent }}>{item.value}</p>
                     </div>
-                  ))}
-                </div>
-              </ChartCard>
-            </div>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
           </div>
 
         </div>

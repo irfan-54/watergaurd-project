@@ -40,6 +40,13 @@ function FlyToLocation({ position }) {
   return null
 }
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: 'easeOut' }
+  })
+}
 
 function CreateReport() {
   const [description, setDescription] = useState('')
@@ -238,232 +245,520 @@ function CreateReport() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity:0, y:16 }}
-          animate={{ opacity:1, y:0 }}
-          transition={{ duration:0.4 }}
-          className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6 md:p-8"
-        >
-          <div className="text-center mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Create Water Report</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Report water issues in your community</p>
-          </div>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-xl mb-6">
-            <p className="text-sm">Please provide either a description or upload an image (or both). Location selection is required.</p>
-          </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .cr-page {
+          background: #050B18;
+          min-height: 100vh;
+          font-family: 'Inter', sans-serif;
+          color: white;
+          position: relative;
+          overflow-x: hidden;
+        }
+        .cr-grid-bg {
+          position: fixed;
+          inset: 0;
+          background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+          background-size: 50px 50px;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .cr-orb {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(80px);
+          animation: crFloat 8s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes crFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-30px) scale(1.05); }
+        }
+        .cr-glass-card {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          backdrop-filter: blur(20px);
+          border-radius: 20px;
+          padding: 40px;
+        }
+        @media (max-width: 768px) {
+          .cr-glass-card { padding: 24px 20px; }
+        }
+        .cr-section-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: white;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .cr-label {
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.5);
+          margin-bottom: 8px;
+        }
+        .cr-textarea {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 14px 16px;
+          color: white;
+          font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          outline: none;
+          transition: all 0.3s ease;
+          resize: none;
+          box-sizing: border-box;
+          line-height: 1.6;
+        }
+        .cr-textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .cr-textarea:focus {
+          border-color: #3B82F6;
+          box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .cr-input {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 12px 16px;
+          color: white;
+          font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          outline: none;
+          transition: all 0.3s ease;
+          box-sizing: border-box;
+        }
+        .cr-input::placeholder { color: rgba(255,255,255,0.3); }
+        .cr-input:focus {
+          border-color: #3B82F6;
+          box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .cr-dropzone {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 220px;
+          border: 2px dashed rgba(255,255,255,0.15);
+          border-radius: 16px;
+          cursor: pointer;
+          background: rgba(255,255,255,0.03);
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .cr-dropzone:hover {
+          border-color: rgba(59,130,246,0.4);
+          background: rgba(59,130,246,0.05);
+        }
+        .cr-btn-primary {
+          background: #3B82F6;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 14px 28px;
+          font-weight: 600;
+          font-size: 15px;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .cr-btn-primary:hover:not(:disabled) {
+          background: #2563EB;
+          transform: translateY(-1px);
+          box-shadow: 0 8px 25px rgba(59,130,246,0.4);
+        }
+        .cr-btn-primary:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .cr-btn-ghost {
+          background: transparent;
+          color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 12px;
+          padding: 14px 28px;
+          font-weight: 500;
+          font-size: 15px;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .cr-btn-ghost:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.3);
+          color: white;
+        }
+        .cr-btn-small {
+          background: #3B82F6;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 10px 20px;
+          font-weight: 600;
+          font-size: 13px;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .cr-btn-small:hover:not(:disabled) {
+          background: #2563EB;
+          box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+        .cr-btn-small:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .cr-search-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          z-index: 99999;
+          background: rgba(15,20,35,0.98);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          max-height: 200px;
+          overflow-y: auto;
+          margin-top: 6px;
+          backdrop-filter: blur(20px);
+          box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        .cr-search-item {
+          padding: 12px 16px;
+          font-size: 13px;
+          cursor: pointer;
+          color: rgba(255,255,255,0.7);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          transition: all 0.15s ease;
+        }
+        .cr-search-item:last-child { border-bottom: none; }
+        .cr-search-item:hover {
+          background: rgba(59,130,246,0.1);
+          color: white;
+        }
+        .cr-info-box {
+          background: rgba(59,130,246,0.08);
+          border: 1px solid rgba(59,130,246,0.2);
+          border-radius: 12px;
+          padding: 14px 18px;
+          font-size: 13px;
+          color: #60A5FA;
+        }
+        .cr-error-box {
+          background: rgba(239,68,68,0.1);
+          border: 1px solid rgba(239,68,68,0.25);
+          border-radius: 12px;
+          padding: 14px 18px;
+          font-size: 13px;
+          color: #FCA5A5;
+        }
+        .cr-success-box {
+          background: rgba(34,197,94,0.1);
+          border: 1px solid rgba(34,197,94,0.25);
+          border-radius: 12px;
+          padding: 14px 18px;
+          font-size: 13px;
+          color: #86EFAC;
+        }
+        .cr-location-box {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 14px 18px;
+        }
+        .cr-map-wrapper {
+          border: 2px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .cr-remove-btn {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: rgba(239,68,68,0.9);
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 700;
+          transition: all 0.2s ease;
+          backdrop-filter: blur(10px);
+          z-index: 5;
+        }
+        .cr-remove-btn:hover {
+          background: #EF4444;
+          transform: scale(1.1);
+        }
+      `}</style>
 
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl mb-6">
-              {error}
+      <div className="cr-page">
+        <div className="cr-grid-bg" />
+        <div className="cr-orb" style={{ width: 400, height: 400, background: 'rgba(59,130,246,0.1)', top: '-5%', right: '-10%', animationDelay: '0s' }} />
+        <div className="cr-orb" style={{ width: 300, height: 300, background: 'rgba(167,139,250,0.08)', bottom: '10%', left: '-8%', animationDelay: '4s' }} />
+
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '100px 16px 60px', position: 'relative', zIndex: 10 }}>
+          <motion.div
+            className="cr-glass-card"
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+          >
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <motion.h1
+                variants={fadeUp} initial="hidden" animate="visible" custom={1}
+                style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.5px' }}
+              >
+                Create Water Report
+              </motion.h1>
+              <motion.p
+                variants={fadeUp} initial="hidden" animate="visible" custom={2}
+                style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}
+              >
+                Report water issues in your community
+              </motion.p>
             </div>
-          )}
-          {success && (
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl mb-6">
-              {success}
+            
+            {/* Info box */}
+            <div className="cr-info-box" style={{ marginBottom: 28 }}>
+              Please provide either a description or upload an image (or both). Location selection is required.
             </div>
-          )}
 
-            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-
-              <div className="space-y-3">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                  📝 Description
-                </h2>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Describe the water issue (optional)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
-                    style={{ height: '140px' }}
-                    placeholder="Please provide detailed information about the water issue you want to report..."
-                  />
-                </div>
+            {error && (
+              <div className="cr-error-box" style={{ marginBottom: 24 }}>
+                {error}
               </div>
+            )}
+            {success && (
+              <div className="cr-success-box" style={{ marginBottom: 24 }}>
+                {success}
+              </div>
+            )}
 
-              <div className="space-y-3">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                  📷 Image Upload
-                </h2>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+                {/* Description Section */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Upload a photo of the issue (optional)
-                  </label>
-                  <div className="relative">
-                    <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" id="image-upload" />
-                    <div
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      className="flex flex-col items-center justify-center w-full h-48 md:h-56 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
-                      onClick={() => document.getElementById('image-upload').click()}
-                    >
-                      {image ? (
-                        <div className="image-preview-container relative w-full h-full">
-                          <img src={URL.createObjectURL(image)} alt="preview" className="w-full h-48 md:h-56 object-cover rounded-xl" />
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setImage(null)
-                              setImageFile(null)
-                              document.getElementById('image-upload').value = ''
-                            }}
-                            className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 border-none cursor-pointer flex items-center justify-center text-sm font-bold transition-colors shadow-lg"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                          </svg>
-                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Upload Photo</span></p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Drag & drop or click to upload</p>
-                        </div>
-                      )}
+                  <div className="cr-section-title">
+                    <span>📝</span> Description
+                  </div>
+                  <div>
+                    <label className="cr-label">
+                      Describe the water issue (optional)
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="cr-textarea"
+                      style={{ height: 140 }}
+                      placeholder="Please provide detailed information about the water issue you want to report..."
+                    />
+                  </div>
+                </div>
+
+                {/* Image Upload Section */}
+                <div>
+                  <div className="cr-section-title">
+                    <span>📷</span> Image Upload
+                  </div>
+                  <div>
+                    <label className="cr-label">
+                      Upload a photo of the issue (optional)
+                    </label>
+                    <div>
+                      <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" id="image-upload" style={{ display: 'none' }} />
+                      <div
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        className="cr-dropzone"
+                        onClick={() => document.getElementById('image-upload').click()}
+                      >
+                        {image ? (
+                          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                            <img src={URL.createObjectURL(image)} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setImage(null)
+                                setImageFile(null)
+                                document.getElementById('image-upload').value = ''
+                              }}
+                              className="cr-remove-btn"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                            <svg width="36" height="36" fill="none" stroke="rgba(255,255,255,0.3)" viewBox="0 0 24 24" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Upload Photo</p>
+                            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Drag & drop or click to upload</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                    📍 Location Selection
-                  </h2>
+                {/* Location Section */}
+                <div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                      <div className="cr-section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0, flex: 1, minWidth: 200 }}>
+                        <span>📍</span> Location Selection
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleUseMyLocation}
+                        className="cr-btn-small"
+                      >
+                        📍 Use My Location
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Search Box */}
+                  <div className="relative" style={{ position: 'relative', zIndex: 99999, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setSearchQuery(val)
+                          
+                          if (searchTimerRef.current) {
+                            clearTimeout(searchTimerRef.current)
+                          }
+                          
+                          if (val.length > 2) {
+                            searchTimerRef.current = setTimeout(() => {
+                              handleSearch(val)
+                            }, 500)
+                          } else {
+                            setSearchResults([])
+                            setShowSearchResults(false)
+                          }
+                        }}
+                        onKeyDown={handleSearchKeyDown}
+                        placeholder="Search for a place..."
+                        className="cr-input"
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSearch(searchQuery)}
+                        disabled={searchLoading}
+                        className="cr-btn-small"
+                      >
+                        {searchLoading ? '...' : 'Search'}
+                      </button>
+                    </div>
+
+                    {/* Search Results Dropdown */}
+                    {showSearchResults && (
+                      <div className="cr-search-dropdown">
+                        {searchResults.length === 0 ? (
+                          <div style={{ padding: '12px 16px', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+                            No places found
+                          </div>
+                        ) : (
+                          searchResults.map((place, index) => (
+                            <div
+                              key={index}
+                              onClick={() => handlePlaceSelect(place)}
+                              className="cr-search-item"
+                            >
+                              {place.display_name}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {position && locationName && (
+                    <div className="cr-location-box" style={{ marginBottom: 16 }}>
+                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>📍 {locationName}</p>
+                    </div>
+                  )}
+
+                  <div className="cr-map-wrapper">
+                    <MapContainer
+                      key={mapKey}
+                      center={[9.9252, 78.1198]}
+                      zoom={13}
+                      style={{ height: '280px', width: '100%', zIndex: 1 }}
+                      className="md:!h-[350px]"
+                    >
+                      <TileLayer
+                        attribution='&copy; OpenStreetMap contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <MapClickHandler setPosition={setPosition} fetchLocationName={fetchLocationName} />
+                      <FlyToLocation position={position} />
+                      {position && <Marker position={position} />}
+                    </MapContainer>
+                  </div>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center', marginTop: 10 }}>Tap on the map to pin your location</p>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 12, paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap' }}>
                   <button
                     type="button"
-                    onClick={handleUseMyLocation}
-                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow"
+                    onClick={() => navigate('/citizen')}
+                    className="cr-btn-ghost"
+                    style={{ flex: '1 1 auto', maxWidth: 160 }}
                   >
-                    📍 Use My Location
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || isSubmitting}
+                    className="cr-btn-primary"
+                    style={{ flex: '1 1 auto', maxWidth: 200 }}
+                  >
+                    {loading ? (
+                      <>
+                        <svg style={{ display: 'inline', marginRight: 8, animation: 'spin 1s linear infinite' }} width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
+                          <path d="M12 2a10 10 0 019.95 9" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                        </svg>
+                        Submitting...
+                      </>
+                    ) : 'Submit Report'}
                   </button>
                 </div>
 
-                {/* Search Box */}
-                <div className="relative" style={{ position: 'relative', zIndex: 99999 }}>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => {
-                        const val = e.target.value
-                        setSearchQuery(val)
-                        
-                        if (searchTimerRef.current) {
-                          clearTimeout(searchTimerRef.current)
-                        }
-                        
-                        if (val.length > 2) {
-                          searchTimerRef.current = setTimeout(() => {
-                            handleSearch(val)
-                          }, 500)
-                        } else {
-                          setSearchResults([])
-                          setShowSearchResults(false)
-                        }
-                      }}
-                      onKeyDown={handleSearchKeyDown}
-                      placeholder="Search for a place..."
-                      className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleSearch(searchQuery)}
-                      disabled={searchLoading}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {searchLoading ? '...' : 'Search'}
-                    </button>
-                  </div>
-
-                  {/* Search Results Dropdown */}
-                  {showSearchResults && (
-                    <div 
-                      className="absolute w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto"
-                      style={{ zIndex: 99999, position: 'absolute', top: '100%', left: 0, right: 0 }}
-                    >
-                      {searchResults.length === 0 ? (
-                        <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          No places found
-                        </div>
-                      ) : (
-                        searchResults.map((place, index) => (
-                          <div
-                            key={index}
-                            onClick={() => handlePlaceSelect(place)}
-                            className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-b border-gray-100 last:border-0"
-                          >
-                            {place.display_name}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {position && locationName && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
-                    <p className="text-sm text-gray-700 dark:text-gray-300"> 📍 {locationName}</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">📍 {locationName}</p>
-                  </div>
-                )}
-
-                <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                  <MapContainer
-                    key={mapKey}
-                    center={[9.9252, 78.1198]}
-                    zoom={13}
-                    style={{ height: '280px', width: '100%', zIndex: 1 }}
-                    className="md:!h-[350px]"
-                  >
-                    <TileLayer
-                      attribution='&copy; OpenStreetMap contributors'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <MapClickHandler setPosition={setPosition} fetchLocationName={fetchLocationName} />
-                    <FlyToLocation position={position} />
-                    {position && <Marker position={position} />}
-                  </MapContainer>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">Tap on the map to pin your location</p>
-              </div>
-
-              <div className="flex flex-col-reverse md:flex-row md:justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => navigate('/citizen')}
-                  className="w-full md:w-auto px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading || isSubmitting}
-                  className="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow relative"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4V12zm4 0v8h8v-8H8z"></path>
-                      </svg>
-                      Submitting...
-                    </>
-                  ) : 'Submit Report'}
-                </button>
-              </div>
-
-            </form>
-        </motion.div>
+              </form>
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

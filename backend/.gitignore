@@ -16,7 +16,6 @@ __pycache__/
 # Temp
 temp_*
 *.tmp
-*.txt
 
 # Training
 training_log.txt

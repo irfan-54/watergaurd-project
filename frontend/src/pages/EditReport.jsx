@@ -4,6 +4,14 @@ import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: 'easeOut' }
+  })
+}
+
 function EditReport() {
   const [description, setDescription] = useState('')
   const [imageFile, setImageFile] = useState(null)
@@ -118,49 +126,150 @@ function EditReport() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:0.3 }}
-    >
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-8">
-          <motion.div
-            initial={{ opacity:0, y:16 }}
-            animate={{ opacity:1, y:0 }}
-            transition={{ duration:0.4 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6 md:p-8"
-          >
-            <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Edit Water Report</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Update your water issue report</p>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .er-page {
+          background: #050B18;
+          min-height: 100vh;
+          font-family: 'Inter', sans-serif;
+          color: white;
+          position: relative;
+          overflow-x: hidden;
+        }
+        .er-grid-bg {
+          position: fixed; inset: 0;
+          background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+          background-size: 50px 50px; pointer-events: none;
+        }
+        .er-orb {
+          position: fixed; border-radius: 50%; filter: blur(80px);
+          animation: erFloat 8s ease-in-out infinite; pointer-events: none;
+        }
+        @keyframes erFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.05)} }
+        .er-glass-card {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          backdrop-filter: blur(20px);
+          border-radius: 20px;
+          padding: 40px;
+        }
+        @media (max-width: 768px) { .er-glass-card { padding: 24px 20px; } }
+        .er-section-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 18px; font-weight: 700; color: white;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          margin-bottom: 16px;
+          display: flex; align-items: center; gap: 10px;
+        }
+        .er-label {
+          display: block; font-size: 13px; font-weight: 500;
+          color: rgba(255,255,255,0.5); margin-bottom: 8px;
+        }
+        .er-textarea {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px; padding: 14px 16px;
+          color: white; font-size: 14px;
+          font-family: 'Inter', sans-serif;
+          outline: none; transition: all 0.3s ease;
+          resize: none; box-sizing: border-box; line-height: 1.6;
+        }
+        .er-textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .er-textarea:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+        .er-dropzone {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          width: 100%; height: 220px;
+          border: 2px dashed rgba(255,255,255,0.15);
+          border-radius: 16px; cursor: pointer;
+          background: rgba(255,255,255,0.03);
+          transition: all 0.3s ease;
+          position: relative; overflow: hidden;
+        }
+        .er-dropzone:hover { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.05); }
+        .er-btn-primary {
+          background: #3B82F6; color: white; border: none;
+          border-radius: 12px; padding: 14px 28px;
+          font-weight: 600; font-size: 15px;
+          font-family: 'Inter', sans-serif; cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .er-btn-primary:hover:not(:disabled) {
+          background: #2563EB; transform: translateY(-1px);
+          box-shadow: 0 8px 25px rgba(59,130,246,0.4);
+        }
+        .er-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .er-btn-ghost {
+          background: transparent;
+          color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 12px; padding: 14px 28px;
+          font-weight: 500; font-size: 15px;
+          font-family: 'Inter', sans-serif; cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .er-btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); color: white; }
+        .er-remove-btn {
+          position: absolute; top: 12px; right: 12px;
+          background: rgba(239,68,68,0.9); color: white;
+          border: none; border-radius: 50%;
+          width: 32px; height: 32px;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; font-size: 14px; font-weight: 700;
+          transition: all 0.2s ease; backdrop-filter: blur(10px); z-index: 5;
+        }
+        .er-remove-btn:hover { background: #EF4444; transform: scale(1.1); }
+      `}</style>
+
+      <div className="er-page">
+        <div className="er-grid-bg" />
+        <div className="er-orb" style={{ width: 400, height: 400, background: 'rgba(59,130,246,0.1)', top: '-5%', right: '-10%' }} />
+        <div className="er-orb" style={{ width: 300, height: 300, background: 'rgba(167,139,250,0.08)', bottom: '10%', left: '-8%', animationDelay: '4s' }} />
+
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '100px 16px 60px', position: 'relative', zIndex: 10 }}>
+          <motion.div className="er-glass-card" variants={fadeUp} initial="hidden" animate="visible" custom={0}>
+
+            {/* Header */}
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <motion.h1 variants={fadeUp} initial="hidden" animate="visible" custom={1}
+                style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, marginBottom: 8, letterSpacing: '-0.5px' }}
+              >
+                Edit Water Report
+              </motion.h1>
+              <motion.p variants={fadeUp} initial="hidden" animate="visible" custom={2}
+                style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}
+              >
+                Update your water issue report
+              </motion.p>
             </div>
 
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl mb-6">
+              <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, padding: '14px 18px', fontSize: 13, color: '#FCA5A5', marginBottom: 24 }}>
                 {error}
               </div>
             )}
-
             {success && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl mb-6">
+              <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 12, padding: '14px 18px', fontSize: 13, color: '#86EFAC', marginBottom: 24 }}>
                 {success}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
               {/* Description Section */}
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                  📝 Description
-                </h2>
+              <div>
+                <div className="er-section-title"><span>📝</span> Description</div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Describe the water issue <span className="text-red-500">*</span>
-                  </label>
+                  <label className="er-label">Describe the water issue <span style={{ color: '#F87171' }}>*</span></label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
-                    style={{ height: '140px' }}
+                    className="er-textarea"
+                    style={{ height: 140 }}
                     placeholder="Please provide detailed information about the water issue..."
                     required
                   />
@@ -169,55 +278,33 @@ function EditReport() {
 
               {/* Current Image Section */}
               {imageUrl && (
-                <div className="space-y-3">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                    🖼️ Current Image
-                  </h2>
+                <div>
+                  <div className="er-section-title"><span>🖼️</span> Current Image</div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Current report image
-                    </label>
-                    <div className="relative">
-                      <img 
-                        src={imageUrl} 
-                        alt="Current report" 
-                        className="w-full h-56 object-cover rounded-xl"
-                      />
+                    <label className="er-label">Current report image</label>
+                    <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <img src={imageUrl} alt="Current report" style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }} />
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Image Upload Section */}
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                  📷 Replace Image (Optional)
-                </h2>
+              <div>
+                <div className="er-section-title"><span>📷</span> Replace Image (Optional)</div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Upload a new photo of the issue
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="image-upload"
-                    />
+                  <label className="er-label">Upload a new photo of the issue</label>
+                  <div>
+                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} id="image-upload" />
                     <div
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
-                      className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                      className="er-dropzone"
                       onClick={() => document.getElementById('image-upload').click()}
                     >
                       {image ? (
-                        <div className="image-preview-container relative w-full h-full">
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt="preview"
-                            className="w-full h-56 object-cover rounded-xl"
-                          />
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                          <img src={URL.createObjectURL(image)} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }} />
                           <button
                             type="button"
                             onClick={(e) => {
@@ -226,26 +313,24 @@ function EditReport() {
                               setImageFile(null)
                               document.getElementById('image-upload').value = ''
                             }}
-                            className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 border-none cursor-pointer flex items-center justify-center text-sm font-bold transition-colors shadow-lg"
+                            className="er-remove-btn"
                           >
                             ✕
                           </button>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <svg className="w-8 h-8 mb-3 text-gray-400 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                          <svg width="36" height="36" fill="none" stroke="rgba(255,255,255,0.3)" viewBox="0 0 24 24" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                           </svg>
-                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                            <span className="font-semibold">Upload New Photo</span>
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Drag & drop or click to upload</p>
+                          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Upload New Photo</p>
+                          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Drag & drop or click to upload</p>
                         </div>
                       )}
                     </div>
                   </div>
                   {imageFile && !image && (
-                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div style={{ marginTop: 8, fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
                       Selected: {imageFile.name}
                     </div>
                   )}
@@ -253,19 +338,11 @@ function EditReport() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => navigate('/citizen')}
-                  className="px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
-                >
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap' }}>
+                <button type="button" onClick={() => navigate('/citizen')} className="er-btn-ghost">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow"
-                >
+                <button type="submit" disabled={loading} className="er-btn-primary">
                   {loading ? 'Updating...' : 'Update Report'}
                 </button>
               </div>
@@ -273,7 +350,7 @@ function EditReport() {
           </motion.div>
         </div>
       </div>
-    </motion.div>
+    </>
   )
 }
 

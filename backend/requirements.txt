@@ -1,12 +1,14 @@
 # Install torch manually for GPU support:
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
+
+
 # Web Framework
 fastapi==0.111.0
 uvicorn==0.30.0
 
 # Database
-supabase==2.3.0
+supabase==2.0.0
 python-dotenv==1.0.1
 
 # AI / ML
@@ -26,7 +28,8 @@ Pillow==10.3.0
 opencv-python-headless==4.9.0.80
 
 # API & utils
-requests==2.32.3
+httpx==0.24.1
+httpcore==0.17.3
 pydantic==2.7.4
 python-multipart==0.0.9
 
@@ -44,7 +47,6 @@ rich==14.3.3
 
 # Dev
 pytest==8.2.2
-httpx==0.24.1
 tqdm==4.66.4
 
 # Render Deployment - Model Download

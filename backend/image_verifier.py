@@ -1,6 +1,6 @@
 import torch
 from transformers import CLIPProcessor, CLIPModel
-from backend.logger import step, success
+from logger import step, success
 from PIL import Image
 import io
 from functools import lru_cache
@@ -24,7 +24,7 @@ def get_clip_model():
             clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
             success("CLIP model loaded successfully")
         except Exception as e:
-            from backend.logger import error
+            from logger import error
             error(f"CLIP ERROR: Failed to load CLIP model: {e}")
             clip_model = None
             clip_processor = None

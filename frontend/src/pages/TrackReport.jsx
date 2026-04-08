@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { motion } from 'framer-motion'
 import ReportStepper from '../components/ReportStepper'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: 'easeOut' }
+  })
+}
 
 export default function TrackReport() {
   const { reportId } = useParams()
@@ -85,169 +94,305 @@ export default function TrackReport() {
     return map[report.status] || 'Status unknown.'
   }
 
+  const getStatusColor = (status) => {
+    const colors = {
+      submitted: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+      verified: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
+      assigned: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+      in_progress: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+      resolved: { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+      rejected: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+    }
+    return colors[status] || { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)', border: 'rgba(255,255,255,0.1)' }
+  }
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-900 dark:text-white">Loading report...</p>
-    </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+      `}</style>
+      <div style={{ background: '#050B18', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 40, height: 40, border: '3px solid rgba(59,130,246,0.2)', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'trSpin 0.8s linear infinite' }} />
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Loading report...</p>
+        </div>
+        <style>{`@keyframes trSpin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    </>
   )
 
   if (!report) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-900 dark:text-white">Report not found or you don't have access.</p>
-    </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+      `}</style>
+      <div style={{ background: '#050B18', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Report not found or you don't have access.</p>
+      </div>
+    </>
   )
 
+  const sc = getStatusColor(report.status)
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6 
-                  min-h-screen bg-gray-50 dark:bg-gray-900">
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .tr-page {
+          background: #050B18;
+          min-height: 100vh;
+          font-family: 'Inter', sans-serif;
+          color: white;
+          position: relative;
+          overflow-x: hidden;
+        }
+        .tr-grid-bg {
+          position: fixed;
+          inset: 0;
+          background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+          background-size: 50px 50px;
+          pointer-events: none;
+        }
+        .tr-orb {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(80px);
+          animation: trFloat 8s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes trFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-30px) scale(1.05); }
+        }
+        .tr-glass {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          backdrop-filter: blur(20px);
+          border-radius: 16px;
+          padding: 24px;
+        }
+        .tr-section-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: white;
+          margin-bottom: 16px;
+        }
+        .tr-back-btn {
+          background: none;
+          border: none;
+          color: rgba(255,255,255,0.4);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: color 0.2s;
+          padding: 0;
+          margin-bottom: 28px;
+        }
+        .tr-back-btn:hover {
+          color: rgba(255,255,255,0.8);
+        }
+        .tr-comment-input {
+          flex: 1;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 10px 14px;
+          color: white;
+          font-size: 13px;
+          font-family: 'Inter', sans-serif;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+        .tr-comment-input::placeholder { color: rgba(255,255,255,0.3); }
+        .tr-comment-input:focus { border-color: #3B82F6; }
+        .tr-send-btn {
+          background: #3B82F6;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 10px 20px;
+          font-size: 13px;
+          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .tr-send-btn:hover {
+          background: #2563EB;
+          box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+        .tr-lightbox {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.85);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          cursor: pointer;
+        }
+      `}</style>
 
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-1 text-sm text-gray-600 
-                   dark:text-gray-400 hover:text-gray-900 
-                   dark:hover:text-white mb-4"
-      >
-        ← Back
-      </button>
+      <div className="tr-page">
+        <div className="tr-grid-bg" />
+        <div className="tr-orb" style={{ width: 400, height: 400, background: 'rgba(59,130,246,0.1)', top: '-5%', left: '-10%', animationDelay: '0s' }} />
+        <div className="tr-orb" style={{ width: 300, height: 300, background: 'rgba(167,139,250,0.08)', bottom: '5%', right: '-8%', animationDelay: '4s' }} />
 
-      {/* SECTION 1: HEADER */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-900 dark:text-white dark:text-gray-700 dark:text-gray-300 mb-1">
-          #WG-{report.id.slice(0, 6).toUpperCase()}
-        </p>
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white capitalize mb-2">
-          {report.category}
-        </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-600 dark:text-gray-400">{report.location}</p>
-        <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">{formatDate(report.created_at)}</p>
-      </div>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '100px 16px 60px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* SECTION 2: STEPPER */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <ReportStepper currentStatus={report.status} />
-      </div>
+          <motion.button
+            className="tr-back-btn"
+            onClick={() => navigate(-1)}
+            variants={fadeUp} initial="hidden" animate="visible" custom={0}
+          >
+            ← Back
+          </motion.button>
 
-      {/* SECTION 3: STATUS CARD */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-          {getStatusMessage(report)}
-        </p>
-        {report.department_name && (
-          <p className="text-xs text-gray-900 dark:text-white dark:text-gray-700 dark:text-gray-300">
-            Department: {report.department_name}
-          </p>
-        )}
-        {report.estimated_resolution && (
-          <p className="text-xs text-gray-900 dark:text-white dark:text-gray-700 dark:text-gray-300 mt-1">
-            ETA: {report.estimated_resolution}
-          </p>
-        )}
-      </div>
+          {/* SECTION 1: HEADER */}
+          <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={1}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+              #WG-{report.id.slice(0, 6).toUpperCase()}
+            </p>
+            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, textTransform: 'capitalize', marginBottom: 10 }}>
+              {report.category}
+            </h1>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>📍 {report.location}</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{formatDate(report.created_at)}</p>
+            </div>
+          </motion.div>
 
-      {/* SECTION 4: TIMELINE */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-          Activity Timeline
-        </h2>
-        {logs.length === 0 ? (
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Updates will appear here as your report progresses.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {logs.map((log) => (
-              <div key={log.id} className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5" />
-                  <div className="w-px flex-1 bg-gray-200 dark:bg-gray-700 mt-1" />
-                </div>
-                <div className="pb-4">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                    {log.event_type}
-                  </p>
-                  {log.message && (
-                    <p className="text-xs text-gray-900 dark:text-white dark:text-gray-700 dark:text-gray-300">{log.message}</p>
-                  )}
-                  <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">{formatDateTime(log.created_at)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          {/* SECTION 2: STEPPER */}
+          <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={2}>
+            <ReportStepper currentStatus={report.status} />
+          </motion.div>
 
-      {/* SECTION 5: IMAGE */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-          Image Evidence
-        </h2>
-        {report.image_url ? (
-          <>
-            <img
-              src={report.image_url}
-              alt="Report evidence"
-              className="w-full max-h-64 object-cover rounded-lg cursor-pointer"
-              onClick={() => setLightbox(true)}
-            />
-            {lightbox && (
-              <div
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-                onClick={() => setLightbox(false)}
-              >
-                <img
-                  src={report.image_url}
-                  alt="Full size"
-                  className="max-w-full max-h-full rounded-lg"
-                />
+          {/* SECTION 3: STATUS CARD */}
+          <motion.div
+            className="tr-glass"
+            variants={fadeUp} initial="hidden" animate="visible" custom={3}
+            style={{ background: sc.bg, borderColor: sc.border }}
+          >
+            <p style={{ fontSize: 14, fontWeight: 500, color: sc.color, marginBottom: 8, lineHeight: 1.6 }}>
+              {getStatusMessage(report)}
+            </p>
+            {report.department_name && (
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+                Department: <span style={{ color: 'rgba(255,255,255,0.7)' }}>{report.department_name}</span>
+              </p>
+            )}
+            {report.estimated_resolution && (
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>
+                ETA: <span style={{ color: 'rgba(255,255,255,0.7)' }}>{report.estimated_resolution}</span>
+              </p>
+            )}
+          </motion.div>
+
+          {/* SECTION 4: TIMELINE */}
+          <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={4}>
+            <h2 className="tr-section-title">Activity Timeline</h2>
+            {logs.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                Updates will appear here as your report progresses.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {logs.map((log, idx) => (
+                  <div key={log.id} style={{ display: 'flex', gap: 14 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{
+                        width: 10, height: 10, borderRadius: '50%',
+                        background: '#3B82F6',
+                        boxShadow: '0 0 8px rgba(59,130,246,0.4)',
+                        marginTop: 6, flexShrink: 0
+                      }} />
+                      {idx < logs.length - 1 && (
+                        <div style={{ width: 1, flex: 1, background: 'rgba(255,255,255,0.08)', marginTop: 4 }} />
+                      )}
+                    </div>
+                    <div style={{ paddingBottom: 20 }}>
+                      <p style={{ fontSize: 14, fontWeight: 500, color: 'white', textTransform: 'capitalize' }}>
+                        {log.event_type}
+                      </p>
+                      {log.message && (
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{log.message}</p>
+                      )}
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{formatDateTime(log.created_at)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
-          </>
-        ) : (
-          <p className="text-sm text-gray-700 dark:text-gray-300">No image attached to this report.</p>
-        )}
-      </div>
+          </motion.div>
 
-      {/* SECTION 6: COMMENTS */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-          Comments
-        </h2>
-        {comments.length === 0 ? (
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">No comments yet.</p>
-        ) : (
-          <div className="space-y-3 mb-4">
-            {comments.map((c) => (
-              <div key={c.id} className="border-b border-gray-100 dark:border-gray-700 pb-3">
-                <p className="text-xs text-gray-900 dark:text-white dark:text-gray-700 dark:text-gray-300 mb-1">
-                  {formatDateTime(c.created_at)}
-                </p>
-                <p className="text-sm text-gray-900 dark:text-white">{c.content}</p>
+          {/* SECTION 5: IMAGE */}
+          <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={5}>
+            <h2 className="tr-section-title">Image Evidence</h2>
+            {report.image_url ? (
+              <>
+                <img
+                  src={report.image_url}
+                  alt="Report evidence"
+                  style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 12, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}
+                  onClick={() => setLightbox(true)}
+                />
+                {lightbox && (
+                  <div className="tr-lightbox" onClick={() => setLightbox(false)}>
+                    <img
+                      src={report.image_url}
+                      alt="Full size"
+                      style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No image attached to this report.</p>
+            )}
+          </motion.div>
+
+          {/* SECTION 6: COMMENTS */}
+          <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={6}>
+            <h2 className="tr-section-title">Comments</h2>
+            {comments.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', marginBottom: 16 }}>No comments yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                {comments.map((c) => (
+                  <div key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12 }}>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
+                      {formatDateTime(c.created_at)}
+                    </p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{c.content}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        {currentUser && report.user_id === currentUser.id && (
-          <div className="flex gap-2 mt-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className="flex-1 text-sm border border-gray-200 dark:border-gray-600 
-                         rounded-lg px-3 py-2 bg-transparent 
-                         text-gray-900 dark:text-white
-                         focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            <button
-              onClick={submitComment}
-              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-            >
-              Send
-            </button>
-          </div>
-        )}
-      </div>
+            )}
+            {currentUser && report.user_id === currentUser.id && (
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="tr-comment-input"
+                />
+                <button onClick={submitComment} className="tr-send-btn">
+                  Send
+                </button>
+              </div>
+            )}
+          </motion.div>
 
-    </div>
+        </div>
+      </div>
+    </>
   )
 }

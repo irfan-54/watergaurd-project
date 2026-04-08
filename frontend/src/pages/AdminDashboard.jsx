@@ -8,8 +8,8 @@ import { apiFetch } from '../config/api'
 import toast from 'react-hot-toast'
 
 // ── Icon components ──────────────────────────────────────────────────────────
-const Icon = ({ d, size = 20 }) => (
-  <svg width={size} height={size} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const Icon = ({ d, size = 20, color = 'currentColor' }) => (
+  <svg width={size} height={size} fill="none" stroke={color} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={d} />
   </svg>
 )
@@ -23,27 +23,43 @@ const IconUsers   = () => <Icon d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 01
 const IconFilter  = () => <Icon d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" size={16} />
 
 // ── Badge helpers ─────────────────────────────────────────────────────────────
-const RISK_STYLES = {
-  HIGH:   'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  LOW:    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+const RISK_BADGE = {
+  HIGH:   { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+  MEDIUM: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  LOW:    { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
 }
-const STATUS_STYLES = {
-  PENDING:         'bg-yellow-100  text-yellow-700  dark:bg-yellow-900/30  dark:text-yellow-300  ring-1 ring-yellow-200  dark:ring-yellow-800',
-  IN_PROGRESS:    'bg-blue-100    text-blue-700    dark:bg-blue-900/30    dark:text-blue-300    ring-1 ring-blue-200    dark:ring-blue-800',
-  ASSIGNED:       'bg-indigo-100  text-indigo-700  dark:bg-indigo-900/30  dark:text-indigo-300  ring-1 ring-indigo-200  dark:ring-indigo-800',
-  AWAITING_REVIEW: 'bg-purple-100  text-purple-700  dark:bg-purple-900/30  dark:text-purple-300  ring-1 ring-purple-200  dark:ring-purple-800',
-  RESOLVED:       'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800',
-  REJECTED:       'bg-red-100     text-red-700     dark:bg-red-900/30     dark:text-red-300     ring-1 ring-red-200     dark:ring-red-800',
+const STATUS_BADGE = {
+  PENDING:          { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  IN_PROGRESS:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  ASSIGNED:        { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
+  AWAITING_REVIEW: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
+  RESOLVED:        { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+  REJECTED:        { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
 }
-const ROLE_STYLES = {
-  admin:      'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 ring-1 ring-violet-200 dark:ring-violet-800',
-  department: 'bg-blue-50   text-blue-700   dark:bg-blue-900/30   dark:text-blue-300   ring-1 ring-blue-200   dark:ring-blue-800',
-  user:       'bg-gray-100  text-gray-600   dark:bg-gray-700      dark:text-gray-600 dark:text-gray-400   ring-1 ring-gray-200   dark:ring-gray-700',
+const ROLE_BADGE = {
+  admin:      { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
+  department: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  user:       { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)' },
 }
-const Badge = ({ label, styles }) => (
-  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles}`}>{label}</span>
+const CATEGORY_COLORS = {
+  contamination: '#F87171',
+  blockage: '#FBBF24',
+  leakage: '#60A5FA',
+}
+
+const badgeStyle = (b) => ({
+  display: 'inline-flex', alignItems: 'center',
+  padding: '4px 12px', borderRadius: 999,
+  fontSize: 11, fontWeight: 600, fontFamily: 'Inter, sans-serif',
+  background: b?.bg || 'rgba(255,255,255,0.06)',
+  color: b?.color || 'rgba(255,255,255,0.5)',
+  border: `1px solid ${b?.border || 'rgba(255,255,255,0.1)'}`,
+})
+
+const Badge = ({ label, badgeData }) => (
+  <span style={badgeStyle(badgeData)}>{label}</span>
 )
+
 const getStatusDisplay = s => ({ 
   PENDING:'Pending', 
   ASSIGNED:'Assigned', 
@@ -54,54 +70,52 @@ const getStatusDisplay = s => ({
 }[s] || s)
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
-const StatCard = ({ label, value, icon, accent, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay, duration: 0.4 }}
-    className="relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
-  >
-    <div className={`absolute top-0 right-0 w-24 h-24 rounded-full ${accent} opacity-10 -translate-y-6 translate-x-6`} />
-    <div className={`inline-flex p-2.5 rounded-xl ${accent} bg-opacity-15 mb-3 text-white`}
-         style={{ background: 'none' }}>
-      <div className={`p-2 rounded-xl ${accent} bg-opacity-10`}>
-        <span className="opacity-80">{icon}</span>
-      </div>
-    </div>
-    <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</p>
-    <p className="text-sm text-gray-900 dark:text-white mt-0.5 font-medium">{label}</p>
-  </motion.div>
-)
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, duration: 0.6, ease: 'easeOut' }
+  })
+}
 
 // ── Action button ─────────────────────────────────────────────────────────────
 const ActionBtn = ({ onClick, disabled, variant = 'primary', children, small }) => {
-  const base = `inline-flex items-center font-semibold rounded-lg transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${small ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-1.5 text-sm'}`
-  const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow',
-    success: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow',
-    danger:  'bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow',
-    ghost:   'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-600 dark:text-gray-400',
+  const base = {
+    display: 'inline-flex', alignItems: 'center', gap: 6,
+    fontWeight: 600, fontFamily: 'Inter, sans-serif',
+    borderRadius: small ? 8 : 12, cursor: 'pointer',
+    transition: 'all 0.2s ease', border: 'none',
+    padding: small ? '6px 14px' : '10px 20px',
+    fontSize: small ? 12 : 14,
+    opacity: disabled ? 0.4 : 1,
+    pointerEvents: disabled ? 'none' : 'auto',
   }
-  return <button onClick={onClick} disabled={disabled} className={`${base} ${variants[variant]}`}>{children}</button>
+  const variants = {
+    primary: { background: '#3B82F6', color: 'white' },
+    success: { background: 'rgba(34,197,94,0.15)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.25)' },
+    danger:  { background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
+    ghost:   { background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' },
+  }
+  return <button onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant] }}>{children}</button>
 }
 
 // ── Modal wrapper ─────────────────────────────────────────────────────────────
 const Modal = ({ title, children, onClose }) => (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.18 }}
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100 dark:border-gray-800"
+      style={{ background: 'rgba(15,20,35,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', borderRadius: 20, width: '100%', maxWidth: 440, boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
     >
-      <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-gray-800">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-          <Icon d="M6 18L18 6M6 6l12 12" size={18} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'white' }}>{title}</h3>
+        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', transition: 'all 0.2s' }}>
+          <Icon d="M6 18L18 6M6 6l12 12" size={16} />
         </button>
       </div>
-      <div className="px-6 py-5">{children}</div>
+      <div style={{ padding: '20px 24px' }}>{children}</div>
     </motion.div>
   </div>
 )
@@ -110,15 +124,17 @@ const Modal = ({ title, children, onClose }) => (
 const Tab = ({ label, active, onClick, badge }) => (
   <button
     onClick={onClick}
-    className={`relative px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${
-      active
-        ? 'bg-blue-600 text-white shadow-sm'
-        : 'text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
-    }`}
+    style={{
+      padding: '10px 20px', fontSize: 13, fontWeight: 600, fontFamily: 'Inter, sans-serif',
+      borderRadius: 12, cursor: 'pointer', transition: 'all 0.2s ease', border: 'none',
+      background: active ? '#3B82F6' : 'transparent',
+      color: active ? 'white' : 'rgba(255,255,255,0.5)',
+      ...(active ? {} : { border: '1px solid rgba(255,255,255,0.1)' }),
+    }}
   >
     {label}
     {badge != null && (
-      <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-600 dark:text-gray-400'}`}>
+      <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 999, background: active ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)', color: active ? 'white' : 'rgba(255,255,255,0.4)' }}>
         {badge}
       </span>
     )}
@@ -126,14 +142,20 @@ const Tab = ({ label, active, onClick, badge }) => (
 )
 
 // ── Select ────────────────────────────────────────────────────────────────────
-const Select = ({ value, onChange, options, placeholder, className = '' }) => (
+const Select = ({ value, onChange, options, placeholder, className = '', style = {} }) => (
   <select
     value={value}
     onChange={e => onChange(e.target.value)}
-    className={`border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${className}`}
+    style={{
+      background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: 12, padding: '10px 14px', color: 'white', fontSize: 13,
+      fontFamily: 'Inter, sans-serif', outline: 'none', cursor: 'pointer',
+      transition: 'border-color 0.2s', appearance: 'auto', ...style,
+    }}
+    className={className}
   >
-    {placeholder && <option value="">{placeholder}</option>}
-    {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    {placeholder && <option value="" style={{ background: '#0F1423', color: 'rgba(255,255,255,0.6)' }}>{placeholder}</option>}
+    {options.map(o => <option key={o.value} value={o.value} style={{ background: '#0F1423', color: 'white' }}>{o.label}</option>)}
   </select>
 )
 
@@ -209,7 +231,6 @@ function AdminDashboard() {
         setPagination(data.pagination || {})
       } else {
         setError(data.message || 'Failed to fetch reports')
-        // Set empty reports to prevent UI crash
         setReports([])
         setPagination({})
       }
@@ -217,7 +238,6 @@ function AdminDashboard() {
       const errorMsg = err.message || 'Failed to connect to server'
       setError(errorMsg)
       setIsDbError(errorMsg.includes('connect') || errorMsg.includes('network') || errorMsg.includes('fetch'))
-      // Set empty reports to prevent UI crash
       setReports([])
       setPagination({})
     }
@@ -336,10 +356,8 @@ function AdminDashboard() {
 
   const handleStartWork = async id => {
     const report = reports.find(r => r.id === id); if (!report) return
-    // 'other' category → show 4-option modal (3 depts + reject)
     if (report.category === 'other') { setAssignModal(id); return }
     if (startingWorkIds.has(id)) return
-    // Auto-assign based on category
     const categoryDeptMap = {
       leakage:       'water_dept',
       contamination: 'health_dept',
@@ -349,10 +367,8 @@ function AdminDashboard() {
     try {
       setStartingWorkIds(prev => new Set([...prev, id]))
       if (dept) {
-        // Use assign endpoint with the mapped department
         const fd = new FormData(); fd.append('department', dept)
         await apiFetch(`/reports/${id}/assign`, { method: 'PUT', body: fd })
-        // Update status to IN_PROGRESS after assignment
         await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
       } else {
         await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
@@ -369,7 +385,6 @@ function AdminDashboard() {
       const fd = new FormData(); fd.append('department', dept)
       const data = await apiFetch(`/reports/${id}/assign`, { method:'PUT', body:fd })
       if (data.status === 'success') {
-        // Update status to IN_PROGRESS after assignment
         await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
         toast.success('Report assigned and work started')
         await fetchReports()
@@ -389,16 +404,19 @@ function AdminDashboard() {
 
   // ── Loading skeleton ─────────────────────────────────────────────────────────
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6">
-        <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-xl w-48 animate-pulse" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse" />)}
+    <>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');`}</style>
+      <div style={{ background: '#050B18', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+        <Navbar />
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '100px 16px 40px' }}>
+          <div style={{ height: 32, width: 200, background: 'rgba(255,255,255,0.06)', borderRadius: 12, marginBottom: 24 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
+            {[1,2,3,4].map(i => <div key={i} style={{ height: 110, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }} />)}
+          </div>
+          <div style={{ height: 400, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }} />
         </div>
-        <div className="h-96 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse" />
       </div>
-    </div>
+    </>
   )
 
   // ── Stat values ──────────────────────────────────────────────────────────────
@@ -408,225 +426,218 @@ function AdminDashboard() {
   const resolvedCount   = reports.filter(r => r.status === 'RESOLVED').length
 
   const STAT_CARDS = [
-    { label:'Total Reports',    value: totalReports,  icon: <IconReport />,  accent:'bg-blue-500',    delay:0.0 },
-    { label:'Pending Review',   value: pendingCount,  icon: <IconAlert />,   accent:'bg-amber-500',   delay:0.07 },
-    { label:'Assigned',         value: assignedCount, icon: <IconClock />,   accent:'bg-indigo-500',  delay:0.14 },
-    { label:'Resolved',         value: resolvedCount, icon: <IconCheck />,   accent:'bg-emerald-500', delay:0.21 },
+    { label:'Total Reports',  value: totalReports,  icon: <IconReport />,  accent:'#3B82F6' },
+    { label:'Pending Review', value: pendingCount,  icon: <IconAlert />,   accent:'#F59E0B' },
+    { label:'Assigned',       value: assignedCount, icon: <IconClock />,   accent:'#6366F1' },
+    { label:'Resolved',       value: resolvedCount, icon: <IconCheck />,   accent:'#22C55E' },
   ]
 
+  const getCatColor = (cat) => CATEGORY_COLORS[cat?.toLowerCase()] || 'rgba(255,255,255,0.5)'
+  const getCatBadge = (cat) => {
+    const map = {
+      contamination: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+      blockage: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+      leakage: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+    }
+    return map[cat?.toLowerCase()] || { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)' }
+  }
+
   return (
-    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:0.3 }}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .ad-page { background: #050B18; min-height: 100vh; font-family: 'Inter', sans-serif; color: white; position: relative; overflow-x: hidden; }
+        .ad-grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; }
+        .ad-orb { position: fixed; border-radius: 50%; filter: blur(80px); animation: adFloat 8s ease-in-out infinite; pointer-events: none; }
+        @keyframes adFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.05)} }
+        .ad-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 16px; }
+        .ad-stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; transition: all 0.3s ease; cursor: default; }
+        .ad-stat-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.3); box-shadow: 0 12px 40px rgba(59,130,246,0.1); }
+        .ad-stat-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.06), transparent); transition: left 0.6s ease; }
+        .ad-stat-card:hover::before { left: 100%; }
+        .ad-table-row { cursor: pointer; transition: all 0.15s ease; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .ad-table-row:hover { background: rgba(59,130,246,0.06); }
+        .ad-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px; color: white; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+        .ad-input::placeholder { color: rgba(255,255,255,0.3); }
+        .ad-input:focus { border-color: #3B82F6; }
+        .ad-search-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px 10px 36px; color: white; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+        .ad-search-input::placeholder { color: rgba(255,255,255,0.3); }
+        .ad-search-input:focus { border-color: #3B82F6; }
+        .ad-pagination-btn { background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s ease; }
+        .ad-pagination-btn:hover:not(:disabled) { background: rgba(255,255,255,0.06); color: white; border-color: rgba(255,255,255,0.25); }
+        .ad-pagination-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        @media (max-width: 768px) { .ad-desktop { display: none !important; } }
+        @media (min-width: 769px) { .ad-mobile { display: none !important; } }
+      `}</style>
+
+      <div className="ad-page">
+        <div className="ad-grid-bg" />
+        <div className="ad-orb" style={{ width: 500, height: 500, background: 'rgba(59,130,246,0.08)', top: '-8%', right: '-12%' }} />
+        <div className="ad-orb" style={{ width: 400, height: 400, background: 'rgba(99,102,241,0.06)', bottom: '5%', left: '-10%', animationDelay: '4s' }} />
+
         <Navbar />
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '100px 16px 60px', position: 'relative', zIndex: 10 }}>
 
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6">
-
-          {/* ── Page header ─────────────────────────────────────────────────── */}
-          <motion.div initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.35 }}
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          {/* Page header */}
+          <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}
+            style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 28 }}
           >
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Admin Dashboard</h1>
-              <p className="text-sm text-gray-900 dark:text-white mt-1">Manage reports, departments, and user access</p>
+              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: 4 }}>Admin Dashboard</h1>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Manage reports, departments, and user access</p>
             </div>
-            <button
-              onClick={() => setShowExport(!showExport)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-600 dark:text-gray-400 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm"
+            <button onClick={() => setShowExport(!showExport)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 12, color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 600, fontFamily: 'Inter, sans-serif', cursor: 'pointer', transition: 'all 0.2s' }}
             >
               <IconDownload /> Export CSV
             </button>
           </motion.div>
 
-          {/* ── Error banner ─────────────────────────────────────────────────── */}
+          {/* Error banner */}
           <AnimatePresence>
             {error && (
               <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }}
-                className={`px-4 py-3 rounded-xl flex justify-between items-center text-sm ${
-                  isDbError 
-                    ? 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300'
-                    : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
-                }`}
+                style={{ padding: '14px 18px', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, marginBottom: 20,
+                  background: isDbError ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                  border: `1px solid ${isDbError ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                  color: isDbError ? '#FBBF24' : '#FCA5A5',
+                }}
               >
-                <span>
-                  {isDbError ? '🔌 Database not available: ' : '⚠️ '}
-                  {error}
-                </span>
-                <button onClick={() => setError(null)} className="font-bold opacity-60 hover:opacity-100">✕</button>
+                <span>{isDbError ? '🔌 Database not available: ' : '⚠️ '}{error}</span>
+                <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontWeight: 700, opacity: 0.6, fontSize: 14 }}>✕</button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* ── Stat cards ───────────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {STAT_CARDS.map(c => <StatCard key={c.label} {...c} />)}
+          {/* Stat cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+            {STAT_CARDS.map((s, i) => (
+              <motion.div key={s.label} className="ad-stat-card" variants={fadeUp} initial="hidden" animate="visible" custom={i + 1}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: `${s.accent}15`, border: `1px solid ${s.accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, color: s.accent, position: 'relative', zIndex: 1 }}>
+                  {s.icon}
+                </div>
+                <p style={{ fontSize: 28, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: s.accent, position: 'relative', zIndex: 1 }}>{s.value}</p>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 4, fontWeight: 500, position: 'relative', zIndex: 1 }}>{s.label}</p>
+              </motion.div>
+            ))}
           </div>
 
-          {/* ── Export panel ─────────────────────────────────────────────────── */}
+          {/* Export panel */}
           <AnimatePresence>
             {showExport && (
               <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }}
-                className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 space-y-4"
+                className="ad-glass" style={{ padding: 24, marginBottom: 20 }}
               >
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-600 dark:text-gray-400">Export Reports as CSV</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Select value={exportFilters.dateRange} onChange={v => setExportFilters(p=>({...p,dateRange:v}))} options={[{value:'all',label:'All Time'},{value:'1d',label:'Today'},{value:'7d',label:'Last 7 Days'},{value:'30d',label:'Last 30 Days'}]} className="w-full" />
-                  <Select value={exportFilters.category}  onChange={v => setExportFilters(p=>({...p,category:v}))}  options={[{value:'leakage',label:'Leakage'},{value:'blockage',label:'Blockage'},{value:'contamination',label:'Contamination'},{value:'other',label:'Other'}]} placeholder="All Categories" className="w-full" />
-                  <Select value={exportFilters.status}    onChange={v => setExportFilters(p=>({...p,status:v}))}    options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]} placeholder="All Statuses" className="w-full" />
-                  <Select value={exportFilters.risk}      onChange={v => setExportFilters(p=>({...p,risk:v}))}      options={[{value:'HIGH',label:'High'},{value:'MEDIUM',label:'Medium'},{value:'LOW',label:'Low'}]} placeholder="All Risks" className="w-full" />
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Export Reports as CSV</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
+                  <Select value={exportFilters.dateRange} onChange={v => setExportFilters(p=>({...p,dateRange:v}))} options={[{value:'all',label:'All Time'},{value:'1d',label:'Today'},{value:'7d',label:'Last 7 Days'},{value:'30d',label:'Last 30 Days'}]} style={{ width: '100%' }} />
+                  <Select value={exportFilters.category}  onChange={v => setExportFilters(p=>({...p,category:v}))}  options={[{value:'leakage',label:'Leakage'},{value:'blockage',label:'Blockage'},{value:'contamination',label:'Contamination'},{value:'other',label:'Other'}]} placeholder="All Categories" style={{ width: '100%' }} />
+                  <Select value={exportFilters.status}    onChange={v => setExportFilters(p=>({...p,status:v}))}    options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]} placeholder="All Statuses" style={{ width: '100%' }} />
+                  <Select value={exportFilters.risk}      onChange={v => setExportFilters(p=>({...p,risk:v}))}      options={[{value:'HIGH',label:'High'},{value:'MEDIUM',label:'Medium'},{value:'LOW',label:'Low'}]} placeholder="All Risks" style={{ width: '100%' }} />
                 </div>
                 <ActionBtn onClick={handleExportFiltered} disabled={exporting} variant="primary">
-                  <IconDownload /> <span className="ml-1.5">{exporting ? 'Exporting…' : 'Export'}</span>
+                  <IconDownload /> <span>{exporting ? 'Exporting…' : 'Export'}</span>
                 </ActionBtn>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* ── Tabs ─────────────────────────────────────────────────────────── */}
-          <div className="flex items-center gap-2">
+          {/* Tabs */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <Tab label="Reports" active={activeTab==='reports'} onClick={() => setActiveTab('reports')} badge={totalReports || undefined} />
             <Tab label="User Management" active={activeTab==='users'} onClick={() => setActiveTab('users')} badge={users.length || undefined} />
           </div>
 
-          {/* ════════════════════════════════════════════════════════════════════
-              REPORTS TAB
-          ════════════════════════════════════════════════════════════════════ */}
+          {/* ══════ REPORTS TAB ══════ */}
           {activeTab === 'reports' && (
-            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.25 }} className="space-y-4">
+            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.25 }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
               {/* Filters bar */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="ad-glass" style={{ padding: 20 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
                     <IconFilter /> Filters
                   </span>
-                  <div className="relative flex-1 max-w-sm">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><IconSearch /></span>
-                    <input 
-                      type="text" 
-                      placeholder="Search by user email..."
-                      value={searchEmail}
-                      onChange={e => setSearchEmail(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                    {searchEmail && <button onClick={() => setSearchEmail('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">✕</button>}
+                  <div style={{ position: 'relative', flex: 1, minWidth: 200, maxWidth: 320 }}>
+                    <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }}><IconSearch /></span>
+                    <input type="text" placeholder="Search by user email..." value={searchEmail} onChange={e => setSearchEmail(e.target.value)} className="ad-search-input" />
+                    {searchEmail && <button onClick={() => setSearchEmail('')} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 12 }}>✕</button>}
                   </div>
-                  <Select value={filters.risk}     onChange={v => setFilters(p=>({...p,risk:v}))}     options={[{value:'HIGH',label:'HIGH'},{value:'MEDIUM',label:'MEDIUM'},{value:'LOW',label:'LOW'}]}                                                                                                                                          placeholder="All Risks"      className="min-w-[130px]" />
-                  <Select value={filters.category} onChange={v => setFilters(p=>({...p,category:v}))} options={[{value:'leakage',label:'Leakage'},{value:'contamination',label:'Contamination'},{value:'blockage',label:'Blockage'},{value:'other',label:'Other'}]}                                                                                placeholder="All Categories" className="min-w-[150px]" />
-                  <Select value={filters.status}   onChange={v => setFilters(p=>({...p,status:v}))}   options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]}                              placeholder="All Statuses"   className="min-w-[150px]" />
+                  <Select value={filters.risk}     onChange={v => setFilters(p=>({...p,risk:v}))}     options={[{value:'HIGH',label:'HIGH'},{value:'MEDIUM',label:'MEDIUM'},{value:'LOW',label:'LOW'}]} placeholder="All Risks" />
+                  <Select value={filters.category} onChange={v => setFilters(p=>({...p,category:v}))} options={[{value:'leakage',label:'Leakage'},{value:'contamination',label:'Contamination'},{value:'blockage',label:'Blockage'},{value:'other',label:'Other'}]} placeholder="All Categories" />
+                  <Select value={filters.status}   onChange={v => setFilters(p=>({...p,status:v}))}   options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]} placeholder="All Statuses" />
                   {(filters.risk || filters.category || filters.status || searchEmail) && (
-                    <button onClick={() => { setFilters({risk:'',category:'',status:''}); setSearchEmail('') }} className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">Clear</button>
+                    <button onClick={() => { setFilters({risk:'',category:'',status:''}); setSearchEmail('') }} style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Clear</button>
                   )}
                 </div>
               </div>
 
               {/* Reports table */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden">
+              <div className="ad-glass" style={{ overflow: 'hidden' }}>
                 {filteredReports.length === 0 ? (
-                  <div className="py-20 text-center">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3 text-gray-400"><IconReport /></div>
-                    <p className="text-gray-900 dark:text-white font-medium">No reports found</p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters</p>
+                  <div style={{ padding: '80px 24px', textAlign: 'center' }}>
+                    <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', color: 'rgba(255,255,255,0.3)' }}><IconReport /></div>
+                    <p style={{ fontWeight: 500, marginBottom: 4 }}>No reports found</p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Try adjusting your filters</p>
                   </div>
                 ) : (
                   <>
                     {/* Mobile cards */}
-                    <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+                    <div className="ad-mobile">
                       {filteredReports.map(report => (
-                        <div key={report.id} onClick={() => setSelectedReport(report)} className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-xs text-gray-400">#{report.id.slice(0,8)}</span>
-                            <div className="flex gap-1.5">
-                              <Badge label={report.risk_level} styles={RISK_STYLES[report.risk_level] || RISK_STYLES.LOW} />
-                              <Badge label={getStatusDisplay(report.status)} styles={STATUS_STYLES[report.status] || ''} />
+                        <div key={report.id} onClick={() => setSelectedReport(report)} style={{ padding: 20, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.15s' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                            <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>#{report.id.slice(0,8)}</span>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <Badge label={report.risk_level} badgeData={RISK_BADGE[report.risk_level] || RISK_BADGE.LOW} />
+                              <Badge label={getStatusDisplay(report.status)} badgeData={STATUS_BADGE[report.status]} />
                             </div>
                           </div>
-                          <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2">{report.description}</p>
-                          <p className="text-xs capitalize font-semibold">
-  <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
-    (report.category || "").toLowerCase() === "contamination"
-      ? "bg-red-500/20 text-red-600 dark:text-red-400"
-      : (report.category || "").toLowerCase() === "blockage"
-      ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
-      : (report.category || "").toLowerCase() === "leakage"
-      ? "bg-blue-500/20 text-blue-600 dark:text-blue-400"
-      : "bg-gray-500/20 text-gray-600 dark:text-gray-400"
-  }`}>
-    {report.category || "Processing"}
-  </span>
-  {' · '}
-  <span className="text-gray-500">{new Date(report.created_at).toLocaleDateString()}</span>
-</p>
-                          <div className="flex gap-2 pt-1" onClick={e => e.stopPropagation()}>
-                            {report.status === 'PENDING' && (
-                              <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>
-                                {startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}
-                              </ActionBtn>
-                            )}
-                            {report.status === 'IN_PROGRESS' && (
-                              <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>
-                            )}
-                            {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && (
-                              <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>
-                            )}
-                            {(report.status === 'RESOLVED' || report.status === 'REJECTED') && (
-                              <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>
-                            )}
+                          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 10, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{report.description}</p>
+                          <p style={{ fontSize: 12, marginBottom: 12 }}>
+                            <span style={badgeStyle(getCatBadge(report.category))}>{report.category || 'Processing'}</span>
+                            <span style={{ margin: '0 8px', color: 'rgba(255,255,255,0.2)' }}>·</span>
+                            <span style={{ color: 'rgba(255,255,255,0.35)' }}>{new Date(report.created_at).toLocaleDateString()}</span>
+                          </p>
+                          <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
+                            {report.status === 'PENDING' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}</ActionBtn>}
+                            {report.status === 'IN_PROGRESS' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
+                            {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                            {(report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                           </div>
                         </div>
                       ))}
                     </div>
 
                     {/* Desktop table */}
-                    <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[520px]">
-                      <table className="w-full text-sm">
-                        <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                          <tr>
+                    <div className="ad-desktop" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 520 }}>
+                      <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                             {['Submitted By','Description','Category','Risk','Status','Created','Actions'].map(h => (
-                              <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider whitespace-nowrap">{h}</th>
+                              <th key={h} style={{ padding: '14px 18px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter, sans-serif', position: 'sticky', top: 0, background: 'rgba(5,11,24,0.95)', backdropFilter: 'blur(10px)', zIndex: 5, whiteSpace: 'nowrap' }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        <tbody>
                           {filteredReports.map(report => (
-                            <tr key={report.id} onClick={() => setSelectedReport(report)}
-                              className="cursor-pointer border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                            >
-                              <td className="px-5 py-4 text-xs text-gray-500 font-mono truncate max-w-[100px]">{report.submitter_email || report.id.slice(0,8)}</td>
-                              <td className="px-5 py-4 text-gray-800 dark:text-gray-200 max-w-[240px]">
-                                <div className="truncate">{report.description || <span className="italic text-gray-400">No description</span>}</div>
+                            <tr key={report.id} className="ad-table-row" onClick={() => setSelectedReport(report)}>
+                              <td style={{ padding: '14px 18px', fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.submitter_email || report.id.slice(0,8)}</td>
+                              <td style={{ padding: '14px 18px', color: 'rgba(255,255,255,0.8)', maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {report.description || <span style={{ fontStyle: 'italic', color: 'rgba(255,255,255,0.3)' }}>No description</span>}
                               </td>
-                              <td className="px-5 py-4 whitespace-nowrap">
-  <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
-    (report.category || "").toLowerCase() === "contamination"
-      ? "bg-red-500/20 text-red-600 dark:text-red-400"
-      : (report.category || "").toLowerCase() === "blockage"
-      ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
-      : (report.category || "").toLowerCase() === "leakage"
-      ? "bg-blue-500/20 text-blue-600 dark:text-blue-400"
-      : "bg-gray-500/20 text-gray-600 dark:text-gray-400"
-  }`}>
-    {report.category || "Processing"}
-  </span>
-</td>
-                              <td className="px-5 py-4 whitespace-nowrap"><Badge label={report.risk_level} styles={RISK_STYLES[report.risk_level] || RISK_STYLES.LOW} /></td>
-                              <td className="px-5 py-4 whitespace-nowrap"><Badge label={getStatusDisplay(report.status)} styles={STATUS_STYLES[report.status] || ''} /></td>
-                              <td className="px-5 py-4 whitespace-nowrap text-gray-900 dark:text-white">{new Date(report.created_at).toLocaleDateString()}</td>
-                              <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
-                                <div className="flex gap-1.5">
-                                  {report.status === 'PENDING' && (
-                                    <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>
-                                      {startingWorkIds.has(report.id) ? '…' : 'Start Work'}
-                                    </ActionBtn>
-                                  )}
-                                  {report.status === 'IN_PROGRESS' && (
-                                    <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>
-                                  )}
-                                  {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && (
-                                    <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>
-                                  )}
-                                  {(report.status === 'RESOLVED' || report.status === 'REJECTED') && (
-                                    <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>
-                                  )}
+                              <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}>
+                                <span style={badgeStyle(getCatBadge(report.category))}>{report.category || 'Processing'}</span>
+                              </td>
+                              <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}><Badge label={report.risk_level} badgeData={RISK_BADGE[report.risk_level] || RISK_BADGE.LOW} /></td>
+                              <td style={{ padding: '14px 18px', whiteSpace: 'nowrap' }}><Badge label={getStatusDisplay(report.status)} badgeData={STATUS_BADGE[report.status]} /></td>
+                              <td style={{ padding: '14px 18px', whiteSpace: 'nowrap', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{new Date(report.created_at).toLocaleDateString()}</td>
+                              <td style={{ padding: '14px 18px' }} onClick={e => e.stopPropagation()}>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                  {report.status === 'PENDING' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? '…' : 'Start Work'}</ActionBtn>}
+                                  {report.status === 'IN_PROGRESS' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
+                                  {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                                  {(report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                                 </div>
                               </td>
                             </tr>
@@ -640,77 +651,61 @@ function AdminDashboard() {
 
               {/* Pagination */}
               {pagination.total_pages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl">
-                  <span className="text-sm text-gray-900 dark:text-white">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
                     {((pagination.page-1)*pagination.limit)+1}–{Math.min(pagination.page*pagination.limit, pagination.total_count)} of {pagination.total_count}
                   </span>
-                  <div className="flex items-center gap-2">
-                    <ActionBtn onClick={() => handlePageChange(pagination.page-1)} disabled={!pagination.has_prev} variant="ghost" small>← Prev</ActionBtn>
-                    <span className="text-sm text-gray-600 dark:text-gray-400 px-2">Page {pagination.page} of {pagination.total_pages}</span>
-                    <ActionBtn onClick={() => handlePageChange(pagination.page+1)} disabled={!pagination.has_next} variant="ghost" small>Next →</ActionBtn>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button className="ad-pagination-btn" onClick={() => handlePageChange(pagination.page-1)} disabled={!pagination.has_prev}>← Prev</button>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', padding: '0 8px' }}>Page {pagination.page} of {pagination.total_pages}</span>
+                    <button className="ad-pagination-btn" onClick={() => handlePageChange(pagination.page+1)} disabled={!pagination.has_next}>Next →</button>
                   </div>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* ════════════════════════════════════════════════════════════════════
-              USERS TAB 
-          ════════════════════════════════════════════════════════════════════ */}
+          {/* ══════ USERS TAB ══════ */}
           {activeTab === 'users' && (
             <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.25 }}>
-              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden">
-
+              <div className="ad-glass" style={{ overflow: 'hidden' }}>
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="relative flex-1 max-w-sm">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><IconSearch /></span>
-                        <input type="text" placeholder="Search by email…" value={userSearch} onChange={e => setUserSearch(e.target.value)}
-                          className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        />
-                        {userSearch && <button onClick={() => setUserSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">✕</button>}
-                      </div>
-                      <Select value={roleFilter} onChange={setRoleFilter}
-                        options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]}
-                        placeholder="All Roles" className="min-w-[120px]"
-                      />
+                <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: 200, maxWidth: 320 }}>
+                      <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }}><IconSearch /></span>
+                      <input type="text" placeholder="Search by email…" value={userSearch} onChange={e => setUserSearch(e.target.value)} className="ad-search-input" />
+                      {userSearch && <button onClick={() => setUserSearch('')} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 12 }}>✕</button>}
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-900 dark:text-white">{filteredUsers.length} of {users.length} users</span>
-                      <button onClick={fetchUsers} className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline">Refresh</button>
-                    </div>
+                    <Select value={roleFilter} onChange={setRoleFilter} options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]} placeholder="All Roles" />
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{filteredUsers.length} of {users.length} users</span>
+                    <button onClick={fetchUsers} style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Refresh</button>
                   </div>
-                  {usersError && <div className="mt-3 text-sm text-red-600 dark:text-red-400">{usersError}</div>}
+                  {usersError && <div style={{ marginTop: 14, fontSize: 13, color: '#F87171' }}>{usersError}</div>}
                 </div>
 
                 {usersLoading ? (
-                  <div className="p-8 text-center text-gray-900 dark:text-white">Loading users…</div>
+                  <div style={{ padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>Loading users…</div>
                 ) : filteredUsers.length === 0 ? (
-                  <div className="p-8 text-center text-gray-900 dark:text-white">
+                  <div style={{ padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
                     {userSearch || roleFilter ? 'No users match your search.' : 'No users found.'}
                   </div>
                 ) : (
                   <>
                     {/* Mobile */}
-                    <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800 overflow-y-auto max-h-[600px]">
+                    <div className="ad-mobile" style={{ maxHeight: 600, overflowY: 'auto' }}>
                       {filteredUsers.map(u => {
                         const edit = userEdits[u.id] || { role: u.role || 'user', department: u.department || '' }
                         const isDirty = edit.role !== (u.role||'user') || edit.department !== (u.department||'')
                         return (
-                          <div key={u.id} className="p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[200px]">{u.email}</span>
-                              <Badge label={u.role || 'user'} styles={ROLE_STYLES[u.role] || ROLE_STYLES.user} />
+                          <div key={u.id} style={{ padding: 20, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                              <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.8)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</span>
+                              <Badge label={u.role || 'user'} badgeData={ROLE_BADGE[u.role] || ROLE_BADGE.user} />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <Select value={edit.role} onChange={v => handleUserEditChange(u.id,'role',v)}
-                                options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]} className="w-full" />
-                              <Select value={edit.department} onChange={v => handleUserEditChange(u.id,'department',v)}
-                                options={[{value:'water_dept',label:'Water Dept'},{value:'pwd',label:'PWD'},{value:'health_dept',label:'Health Dept'}]}
-                                placeholder="No dept" className={`w-full ${edit.role!=='department'?'opacity-40 cursor-not-allowed':''}`}
-                              />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                              <Select value={edit.role} onChange={v => handleUserEditChange(u.id,'role',v)} options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]} style={{ width: '100%' }} />
+                              <Select value={edit.department} onChange={v => handleUserEditChange(u.id,'department',v)} options={[{value:'water_dept',label:'Water Dept'},{value:'pwd',label:'PWD'},{value:'health_dept',label:'Health Dept'}]} placeholder="No dept" style={{ width: '100%', opacity: edit.role!=='department' ? 0.4 : 1, pointerEvents: edit.role!=='department' ? 'none' : 'auto' }} />
                             </div>
                             <ActionBtn onClick={() => handleUpdateUserRole(u.id)} disabled={!isDirty || updatingUserId===u.id} variant={updateSuccess===u.id?'success':'primary'} small>
                               {updatingUserId===u.id ? 'Saving…' : updateSuccess===u.id ? '✓ Saved' : 'Save Changes'}
@@ -721,37 +716,33 @@ function AdminDashboard() {
                     </div>
 
                     {/* Desktop */}
-                    <div className="hidden md:block overflow-x-auto overflow-y-auto max-h-[520px]">
-                      <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                          <tr>
+                    <div className="ad-desktop" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 520 }}>
+                      <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                             {['Email','Current Role','New Role','Department','Action'].map(h => (
-                              <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider">{h}</th>
+                              <th key={h} style={{ padding: '14px 18px', textAlign: 'left', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, color: 'rgba(255,255,255,0.35)', fontFamily: 'Inter, sans-serif', position: 'sticky', top: 0, background: 'rgba(5,11,24,0.95)', backdropFilter: 'blur(10px)', zIndex: 5 }}>{h}</th>
                             ))}
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        <tbody>
                           {filteredUsers.map(u => {
                             const edit = userEdits[u.id] || { role: u.role || 'user', department: u.department || '' }
                             const isDirty = edit.role !== (u.role||'user') || edit.department !== (u.department||'')
                             return (
-                              <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                <td className="px-5 py-3.5 text-gray-800 dark:text-gray-200 max-w-[220px] truncate">{u.email}</td>
-                                <td className="px-5 py-3.5">
-                                  <Badge label={u.role || 'user'} styles={ROLE_STYLES[u.role] || ROLE_STYLES.user} />
-                                  {u.department && <span className="ml-2 text-xs text-gray-400">({u.department})</span>}
+                              <tr key={u.id} className="ad-table-row" style={{ cursor: 'default' }}>
+                                <td style={{ padding: '14px 18px', color: 'rgba(255,255,255,0.8)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</td>
+                                <td style={{ padding: '14px 18px' }}>
+                                  <Badge label={u.role || 'user'} badgeData={ROLE_BADGE[u.role] || ROLE_BADGE.user} />
+                                  {u.department && <span style={{ marginLeft: 8, fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>({u.department})</span>}
                                 </td>
-                                <td className="px-5 py-3.5">
-                                  <Select value={edit.role} onChange={v => handleUserEditChange(u.id,'role',v)}
-                                    options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]} className="w-full" />
+                                <td style={{ padding: '14px 18px' }}>
+                                  <Select value={edit.role} onChange={v => handleUserEditChange(u.id,'role',v)} options={[{value:'user',label:'user'},{value:'department',label:'department'},{value:'admin',label:'admin'}]} style={{ width: '100%' }} />
                                 </td>
-                                <td className="px-5 py-3.5">
-                                  <Select value={edit.department} onChange={v => handleUserEditChange(u.id,'department',v)}
-                                    options={[{value:'water_dept',label:'Water Department'},{value:'pwd',label:'PWD'},{value:'health_dept',label:'Health Department'}]}
-                                    placeholder="No department" className={`w-full ${edit.role!=='department'?'opacity-40 cursor-not-allowed pointer-events-none':''}`}
-                                  />
+                                <td style={{ padding: '14px 18px' }}>
+                                  <Select value={edit.department} onChange={v => handleUserEditChange(u.id,'department',v)} options={[{value:'water_dept',label:'Water Department'},{value:'pwd',label:'PWD'},{value:'health_dept',label:'Health Department'}]} placeholder="No department" style={{ width: '100%', opacity: edit.role!=='department' ? 0.4 : 1, pointerEvents: edit.role!=='department' ? 'none' : 'auto' }} />
                                 </td>
-                                <td className="px-5 py-3.5">
+                                <td style={{ padding: '14px 18px' }}>
                                   <ActionBtn onClick={() => handleUpdateUserRole(u.id)} disabled={!isDirty || updatingUserId===u.id} variant={updateSuccess===u.id?'success':'primary'} small>
                                     {updatingUserId===u.id ? 'Saving…' : updateSuccess===u.id ? '✓ Saved' : 'Save'}
                                   </ActionBtn>
@@ -774,8 +765,8 @@ function AdminDashboard() {
       <AnimatePresence>
         {deleteConfirmation && (
           <Modal title="Delete Report" onClose={cancelDelete}>
-            <p className="text-sm text-gray-900 dark:text-white mb-5">Are you sure you want to delete this report? This action cannot be undone.</p>
-            <div className="flex gap-3 justify-end">
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 24 }}>Are you sure you want to delete this report? This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <ActionBtn onClick={cancelDelete} variant="ghost">Cancel</ActionBtn>
               <ActionBtn onClick={confirmDelete} variant="danger">Delete</ActionBtn>
             </div>
@@ -784,24 +775,24 @@ function AdminDashboard() {
 
         {assignModal && (
           <Modal title="Assign Department" onClose={() => setAssignModal(null)}>
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-xl mb-4">
-              <p className="text-sm font-semibold">⚠️ AI could not classify this report</p>
-              <p className="text-xs mt-1">Manual department assignment required</p>
+            <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#FBBF24' }}>⚠️ AI could not classify this report</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Manual department assignment required</p>
             </div>
-            <div className="space-y-2 mb-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
               {[
-                { dept:'water_dept',  label:'💧 Water Department', variant:'primary' },
-                { dept:'pwd',         label:'🔧 PWD',               variant:'primary' },
-                { dept:'health_dept', label:'🏥 Health Department', variant:'primary' },
+                { dept:'water_dept',  label:'💧 Water Department' },
+                { dept:'pwd',         label:'🔧 PWD' },
+                { dept:'health_dept', label:'🏥 Health Department' },
               ].map(({ dept, label }) => (
                 <button key={dept} onClick={() => handleAssign(assignModal, dept)}
-                  className="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-600 dark:text-gray-400 transition-all text-left"
+                  style={{ width: '100%', padding: '12px 18px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left', fontFamily: 'Inter, sans-serif' }}
                 >
                   {label}
                 </button>
               ))}
               <button onClick={() => { setAssignModal(null); setRejectConfirmation(assignModal) }}
-                className="w-full py-2.5 px-4 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 border border-red-200 dark:border-red-800 rounded-xl text-sm font-semibold text-red-700 dark:text-red-300 transition-all text-left"
+                style={{ width: '100%', padding: '12px 18px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#F87171', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left', fontFamily: 'Inter, sans-serif' }}
               >
                 ✕ Not Water-Related — Reject
               </button>
@@ -812,12 +803,13 @@ function AdminDashboard() {
 
         {rejectConfirmation && (
           <Modal title="Reject Report" onClose={() => { setRejectConfirmation(null); setRejectionReason('') }}>
-            <p className="text-sm text-gray-900 dark:text-white mb-3">Please provide a reason for the citizen.</p>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 14 }}>Please provide a reason for the citizen.</p>
             <textarea value={rejectionReason} onChange={e => setRejectionReason(e.target.value)}
               placeholder="Enter rejection reason…" rows={3}
-              className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-4 resize-none"
+              className="ad-input"
+              style={{ resize: 'none', marginBottom: 20, height: 'auto' }}
             />
-            <div className="flex gap-3 justify-end">
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <ActionBtn onClick={() => { setRejectConfirmation(null); setRejectionReason('') }} variant="ghost">Cancel</ActionBtn>
               <ActionBtn onClick={() => { if (!rejectionReason.trim()) { toast.error('Please enter a reason'); return } handleReject(rejectConfirmation, rejectionReason); setRejectionReason('') }} variant="danger">
                 Send Rejection

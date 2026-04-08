@@ -5,9 +5,9 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from backend.db import supabase, SUPABASE_URL, SUPABASE_KEY
-from backend.auth.auth_middleware import get_current_user
-from backend.logger import log_system_status, success, error, warning, info, step, request_received
+from db import supabase, SUPABASE_URL, SUPABASE_KEY
+from auth.auth_middleware import get_current_user
+from logger import log_system_status, success, error, warning, info, step, request_received
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -16,13 +16,13 @@ from slowapi.middleware import SlowAPIMiddleware
 from uuid import uuid4
 from datetime import datetime, timezone
 import requests
-from backend.email_service import (
+from email_service import (
     send_report_submitted_email,
     send_report_assigned_email,
     send_report_resolved_email,
     send_report_rejected_email
 )
-from backend.ai_processor import (
+from ai_processor import (
     load_nlp_model,
     run_ai_analysis,
     run_text_analysis,

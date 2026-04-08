@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Depends, Request
 from .jwt_handler import decode_access_token
-from backend.db import supabase
+from db import supabase
 
 def get_current_user(request: Request):
     """

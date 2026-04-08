@@ -91,142 +91,372 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
     }
   }
 
+  const getCategoryBadge = (category) => {
+    const styles = {
+      contamination: { background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
+      blockage: { background: 'rgba(245,158,11,0.15)', color: '#FBBF24', border: '1px solid rgba(245,158,11,0.25)' },
+      leakage: { background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
+    }
+    return styles[category] || { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }
+  }
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      submitted: { background: 'rgba(245,158,11,0.15)', color: '#FBBF24', border: '1px solid rgba(245,158,11,0.25)' },
+      assigned: { background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
+      verified: { background: 'rgba(167,139,250,0.15)', color: '#A78BFA', border: '1px solid rgba(167,139,250,0.25)' },
+      in_progress: { background: 'rgba(245,158,11,0.15)', color: '#FBBF24', border: '1px solid rgba(245,158,11,0.25)' },
+      resolved: { background: 'rgba(34,197,94,0.15)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.25)' },
+      rejected: { background: 'rgba(239,68,68,0.15)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
+    }
+    return styles[status] || { background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }
+  }
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      submitted: 'Submitted', assigned: 'Assigned', verified: 'Verified',
+      in_progress: 'In Progress', resolved: 'Resolved', rejected: 'Rejected',
+    }
+    return labels[status] || status || 'N/A'
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center 
-             justify-center bg-black/40 backdrop-blur-[2px]">
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Report Details</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        .rm-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0,0,0,0.6);
+          backdrop-filter: blur(4px);
+          padding: 16px;
+        }
+        .rm-card {
+          position: relative;
+          background: rgba(15,20,35,0.95);
+          border: 1px solid rgba(255,255,255,0.1);
+          backdrop-filter: blur(20px);
+          border-radius: 20px;
+          width: 100%;
+          max-width: 520px;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .rm-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 24px 28px 20px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .rm-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 20px;
+          font-weight: 700;
+          color: white;
+        }
+        .rm-close {
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: rgba(255,255,255,0.5);
+          transition: all 0.2s ease;
+        }
+        .rm-close:hover {
+          background: rgba(255,255,255,0.1);
+          color: white;
+          border-color: rgba(255,255,255,0.2);
+        }
+        .rm-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px 28px;
+        }
+        .rm-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        .rm-content::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .rm-content::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.15);
+          border-radius: 4px;
+        }
+        .rm-section-label {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: rgba(255,255,255,0.35);
+          margin-bottom: 6px;
+        }
+        .rm-description {
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          color: rgba(255,255,255,0.8);
+          line-height: 1.6;
+        }
+        .rm-badge {
+          display: inline-block;
+          padding: 5px 14px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          text-transform: capitalize;
+        }
+        .rm-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.08);
+          margin: 20px 0;
+        }
+        .rm-comment-bubble {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 12px 16px;
+          margin-bottom: 10px;
+        }
+        .rm-comment-text {
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: rgba(255,255,255,0.8);
+          line-height: 1.5;
+        }
+        .rm-comment-date {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          color: rgba(255,255,255,0.3);
+          margin-top: 6px;
+        }
+        .rm-comment-input {
+          flex: 1;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 10px 14px;
+          color: white;
+          font-size: 13px;
+          font-family: 'Inter', sans-serif;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+        .rm-comment-input::placeholder {
+          color: rgba(255,255,255,0.3);
+        }
+        .rm-comment-input:focus {
+          border-color: #3B82F6;
+        }
+        .rm-send-btn {
+          background: #3B82F6;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 10px 18px;
+          font-size: 13px;
+          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .rm-send-btn:hover:not(:disabled) {
+          background: #2563EB;
+          box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+        .rm-send-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+        .rm-footer {
+          padding: 20px 28px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .rm-action-btn {
+          border: none;
+          border-radius: 12px;
+          padding: 10px 20px;
+          font-size: 13px;
+          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .rm-action-btn:hover {
+          transform: translateY(-1px);
+        }
+        .rm-action-blue {
+          background: #3B82F6;
+          color: white;
+        }
+        .rm-action-blue:hover {
+          background: #2563EB;
+          box-shadow: 0 4px 15px rgba(59,130,246,0.35);
+        }
+        .rm-action-green {
+          background: rgba(34,197,94,0.15);
+          color: #4ADE80;
+          border: 1px solid rgba(34,197,94,0.25);
+        }
+        .rm-action-green:hover {
+          background: rgba(34,197,94,0.25);
+          box-shadow: 0 4px 15px rgba(34,197,94,0.2);
+        }
+        .rm-action-red {
+          background: rgba(239,68,68,0.12);
+          color: #F87171;
+          border: 1px solid rgba(239,68,68,0.25);
+        }
+        .rm-action-red:hover {
+          background: rgba(239,68,68,0.2);
+          box-shadow: 0 4px 15px rgba(239,68,68,0.2);
+        }
+        .rm-action-ghost {
+          background: rgba(255,255,255,0.06);
+          color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.12);
+        }
+        .rm-action-ghost:hover {
+          background: rgba(255,255,255,0.1);
+          color: white;
+          border-color: rgba(255,255,255,0.25);
+        }
+        .rm-italic-hint {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255,255,255,0.3);
+          font-style: italic;
+        }
+      `}</style>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto py-4">
-          {/* Report Info */}
-          <div className="space-y-4 mb-6">
+      <div className="rm-overlay" onClick={onClose}>
+        <div className="rm-card" onClick={(e) => e.stopPropagation()}>
+          {/* Header */}
+          <div className="rm-header">
+            <h2 className="rm-title">Report Details</h2>
+            <button onClick={onClose} className="rm-close">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="rm-content">
+            {/* Report Info */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 20 }}>
+                <div className="rm-section-label">Description</div>
+                <p className="rm-description">
+                  {report.description.length > 120 ? `${report.description.substring(0, 120)}...` : report.description}
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24 }}>
+                <div>
+                  <div className="rm-section-label">Category</div>
+                  <span className="rm-badge" style={getCategoryBadge(report.category)}>
+                    {report.category}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="rm-section-label">Status</div>
+                  <span className="rm-badge" style={getStatusBadge(report.status)}>
+                    {getStatusLabel(report.status)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            <div className="rm-divider" />
             <div>
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</h3>
-              <p className="text-gray-900 dark:text-white">
-                {report.description.length > 120 ? `${report.description.substring(0, 120)}...` : report.description}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</h3>
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                  report.category === 'contamination'
-                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    : report.category === 'blockage'
-                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                    : report.category === 'leakage'
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
-                }`}>
-                  {report.category}
-                </span>
+              <div className="rm-section-label" style={{ marginBottom: 14 }}>
+                Comments {comments.length > 0 && <span style={{ color: 'rgba(255,255,255,0.5)' }}>({comments.length})</span>}
               </div>
 
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</h3>
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                  report.status === 'submitted' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-                    : report.status === 'assigned' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                    : report.status === 'verified' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                    : report.status === 'in_progress' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
-                    : report.status === 'resolved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                    : report.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
-                }`}>
-                  {report.status === 'submitted' ? 'Submitted'
-                    : report.status === 'assigned' ? 'Assigned'
-                    : report.status === 'verified' ? 'Verified'
-                    : report.status === 'in_progress' ? 'In Progress'
-                    : report.status === 'resolved' ? 'Resolved'
-                    : report.status === 'rejected' ? 'Rejected'
-                    : report.status || 'N/A'}
-                </span>
-              </div>
+              {commentsLoading ? (
+                <div className="rm-italic-hint">Loading comments...</div>
+              ) : comments.length === 0 ? (
+                <div className="rm-italic-hint" style={{ marginBottom: 14 }}>No comments yet.</div>
+              ) : (
+                <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 16 }}>
+                  {comments.map(comment => (
+                    <div key={comment.id} className="rm-comment-bubble">
+                      <p className="rm-comment-text">{comment.comment}</p>
+                      <p className="rm-comment-date">{formatDate(comment.created_at)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {canComment && (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                    placeholder="Add a comment..."
+                    className="rm-comment-input"
+                  />
+                  <button
+                    onClick={handleAddComment}
+                    disabled={submitting || !newComment.trim()}
+                    className="rm-send-btn"
+                  >
+                    {submitting ? '...' : 'Send'}
+                  </button>
+                </div>
+              )}
+
+              {isCitizen && (
+                <p className="rm-italic-hint" style={{ marginTop: 10 }}>Comments are added by department handling your report.</p>
+              )}
             </div>
           </div>
 
-          {/* Comments Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Comments {comments.length > 0 && <span className="ml-1 text-gray-600 dark:text-gray-400">({comments.length})</span>}
-            </h3>
-
-            {commentsLoading ? (
-              <div className="text-xs text-gray-600 dark:text-gray-400 italic">Loading comments...</div>
-            ) : comments.length === 0 ? (
-              <div className="text-xs text-gray-600 dark:text-gray-400 italic mb-3">No comments yet.</div>
-            ) : (
-              <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
-                {comments.map(comment => (
-                  <div key={comment.id} className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
-                    <p className="text-sm text-gray-900 dark:text-white">{comment.comment}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{formatDate(comment.created_at)}</p>
-                  </div>
-                ))}
-              </div>
+          {/* Footer */}
+          <div className="rm-footer">
+            {isAdmin && report.status === 'submitted' && onStartWork && (
+              <button onClick={() => onStartWork(report.id)} className="rm-action-btn rm-action-blue">Assign to Department</button>
             )}
-
-            {canComment && (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                  placeholder="Add a comment..."
-                  className="flex-1 px-3 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleAddComment}
-                  disabled={submitting || !newComment.trim()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors"
-                >
-                  {submitting ? '...' : 'Send'}
-                </button>
-              </div>
+            {isAdmin && report.status === 'verified' && onResolve && (
+              <button onClick={() => onResolve(report.id)} className="rm-action-btn rm-action-green">Resolve</button>
             )}
-
-            {isCitizen && (
-              <p className="text-xs text-gray-600 dark:text-gray-400 italic mt-2">Comments are added by department handling your report.</p>
+            {isAdmin && (report.status === 'submitted' || report.status === 'resolved') && onDelete && (
+              <button onClick={() => onDelete(report.id)} className="rm-action-btn rm-action-red">Delete</button>
             )}
+            {isDepartment && report.status === 'assigned' && onResolve && (
+              <button onClick={() => onResolve(report.id)} className="rm-action-btn rm-action-green">Mark Complete</button>
+            )}
+            <button 
+              onClick={() => navigate(`/track/${report.id}`)}
+              className="rm-action-btn rm-action-ghost"
+            >
+              Track Report →
+            </button>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-wrap gap-3">
-          {isAdmin && report.status === 'submitted' && onStartWork && (
-            <button onClick={() => onStartWork(report.id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Assign to Department</button>
-          )}
-          {isAdmin && report.status === 'verified' && onResolve && (
-            <button onClick={() => onResolve(report.id)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Resolve</button>
-          )}
-          {isAdmin && (report.status === 'submitted' || report.status === 'resolved') && onDelete && (
-            <button onClick={() => onDelete(report.id)} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Delete</button>
-          )}
-          {isDepartment && report.status === 'assigned' && onResolve && (
-            <button onClick={() => onResolve(report.id)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Mark Complete</button>
-          )}
-          <button 
-            onClick={() => navigate(`/track/${report.id}`)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Track Report →
-          </button>
         </div>
       </div>
-    </div>
+    </>
   )
 }

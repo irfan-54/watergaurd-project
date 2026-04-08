@@ -8,9 +8,9 @@ from functools import lru_cache
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from backend.image_verifier import verify_image
-from backend.db import supabase
-from backend.logger import log_system_status, success, error, warning, info, step
+from image_verifier import verify_image
+from db import supabase
+from logger import log_system_status, success, error, warning, info, step
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 import pynvml
 
@@ -149,7 +149,7 @@ def load_nlp_model():
         clip_status = "[green]Loaded[/green]"
         try:
             # CLIP is loaded in image_verifier.py, check if it's available
-            from backend.image_verifier import verify_image
+            from image_verifier import verify_image
             clip_status = "[green]Loaded[/green]"
             success("CLIP Model loaded successfully")
         except Exception as e:
