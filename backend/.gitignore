@@ -1,0 +1,22 @@
+# 🔥 HEAVY FILES
+models/
+datasets/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Env
+.env
+
+# Logs
+*.log
+
+# Temp
+temp_*
+*.tmp
+*.txt
+
+# Training
+training_log.txt
