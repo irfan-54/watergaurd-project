@@ -1,0 +1,76 @@
+# 🔥 Archive
+archive/
+project_archive/
+
+# 🤖 AI / ML
+backend/models/
+backend/datasets/
+backend/results/
+
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+*.h5
+*.onnx
+*.pickle
+*.joblib
+
+backend/datasets/*.jsonl
+backend/datasets/*.csv
+backend/datasets/*.parquet
+backend/datasets/*.hdf5
+backend/datasets/*.feather
+
+# 🧠 Python
+__pycache__/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+
+# 🔐 Env
+.env
+.env.*
+!.env.example
+
+# 📦 Node
+node_modules/
+
+dist/
+build/
+.next/
+
+# 📜 Logs
+logs/
+log/
+*.log
+
+# 🗄️ Database
+*.db
+*.sqlite
+*.sqlite3
+
+# 💻 OS
+.DS_Store
+Thumbs.db
+
+# ⚡ Temp
+*.tmp
+*.temp
+*.cache/
+*.ipynb_checkpoints
+
+# 🛑 Safety
+**/.git
+
+project_structure.txt
+structure.txt
+backend/training_log.txt
+backend/temp_*.txt
+!README.md
