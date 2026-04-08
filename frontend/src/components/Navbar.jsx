@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
-import ThemeSwitcher from './ThemeSwitcher'
 
 function Navbar() {
   const navigate = useNavigate()
@@ -11,7 +9,7 @@ function Navbar() {
   const pathname = location.pathname
   const isAdminPage = pathname.startsWith("/admin")
   const { user, role } = useAuth()
-  const { theme, effectiveTheme } = useTheme()
+
   const [authUser, setAuthUser] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -268,7 +266,7 @@ function Navbar() {
 
           {/* RIGHT: Theme Toggle + Auth + Mobile Hamburger */}
           <div className="wg-nav-right">
-            <ThemeSwitcher />
+
 
             {/* Desktop Authentication */}
             <div className="wg-nav-desktop-auth" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

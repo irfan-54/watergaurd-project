@@ -2,7 +2,10 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 import torch
-import pynvml
+try:
+    import pynvml
+except:
+    pynvml = None
 
 console = Console()
 
