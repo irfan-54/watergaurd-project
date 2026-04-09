@@ -83,6 +83,22 @@ export default function TrackReport() {
   function getStatusMessage(report) {
     const dept = report.department_name || 'Department assignment pending'
     const reason = report.rejection_reason || 'No reason provided'
+    const statusMap = {
+      'PENDING': 'Submitted',
+      'pending': 'Submitted',
+      'submitted': 'Submitted',
+      'IN_PROGRESS': 'In Progress',
+      'in_progress': 'In Progress',
+      'ASSIGNED': 'Assigned',
+      'assigned': 'Assigned',
+      'RESOLVED': 'Resolved',
+      'resolved': 'Resolved',
+      'REJECTED': 'Rejected',
+      'rejected': 'Rejected',
+      'verified': 'Verified'
+    }
+    const normalizedStatus = statusMap[report.status] || report.status || 'unknown'
+    
     const map = {
       submitted: 'Your report has been received. We are reviewing it.',
       verified: 'Your report has been verified by our system.',
@@ -91,7 +107,7 @@ export default function TrackReport() {
       resolved: 'This issue has been resolved. Thank you for reporting.',
       rejected: `Your report was not accepted. Reason: ${reason}`
     }
-    return map[report.status] || `Status: ${report.status || 'unknown'}`
+    return map[normalizedStatus.toLowerCase()] || `Status: ${normalizedStatus}`
   }
 
   const getStatusColor = (status) => {
