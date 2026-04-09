@@ -20,12 +20,12 @@ const RISK_BADGE = {
   LOW:    { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
 }
 const STATUS_BADGE = {
-  PENDING:          { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
-  IN_PROGRESS:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
-  ASSIGNED:        { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
-  AWAITING_REVIEW: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
-  RESOLVED:        { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
-  REJECTED:        { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+  submitted:        { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  in_progress:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  assigned:         { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
+  awaiting_review: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
+  resolved:         { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+  rejected:         { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
 }
 const CATEGORY_BADGE = {
   contamination: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
@@ -98,11 +98,11 @@ function DepartmentDashboard() {
 
   const getStatusDisplay = (status) => {
     switch (status) {
-      case 'PENDING': return 'Pending'
-      case 'IN_PROGRESS': return 'In Progress'
-      case 'ASSIGNED': return 'Assigned'
-      case 'RESOLVED': return 'Resolved'
-      case 'REJECTED': return 'Rejected'
+      case 'submitted': return 'Submitted'
+      case 'in_progress': return 'In Progress'
+      case 'assigned': return 'Assigned'
+      case 'resolved': return 'Resolved'
+      case 'rejected': return 'Rejected'
       default: return status
     }
   }
@@ -112,8 +112,8 @@ function DepartmentDashboard() {
     : 'Department'
 
   const totalAssigned = pagination.total_count || reports.length
-  const inProgressCount = reports.filter(r => r.status === 'IN_PROGRESS').length
-  const resolvedCount = reports.filter(r => r.status === 'RESOLVED').length
+  const inProgressCount = reports.filter(r => r.status === 'in_progress').length
+  const resolvedCount = reports.filter(r => r.status === 'resolved').length
 
   const statCards = [
     { label: 'Total Assigned', value: totalAssigned, icon: '📋', accent: '#3B82F6' },
@@ -229,11 +229,11 @@ function DepartmentDashboard() {
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.4)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Status</label>
                 <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="dd-select">
                   <option value="">All Statuses</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="ASSIGNED">Assigned</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="RESOLVED">Resolved</option>
-                  <option value="REJECTED">Rejected</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="assigned">Assigned</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
             </div>
@@ -269,13 +269,13 @@ function DepartmentDashboard() {
                         <span>{new Date(report.created_at).toLocaleDateString()}</span>
                       </p>
                       <div style={{ display: 'flex', gap: 8 }} onClick={(e) => e.stopPropagation()}>
-                        {report.status === 'IN_PROGRESS' && (
+                        {report.status === 'in_progress' && (
                           <button onClick={() => handleAction(report.id, 'resolve')} disabled={!!actionLoading[report.id]} className="dd-btn-resolve" style={{ flex: 1 }}>
                             {actionLoading[report.id] === 'resolve' ? 'Updating...' : 'Mark Complete'}
                           </button>
                         )}
-                        {report.status === 'RESOLVED' && (
-                          <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>✓ Resolved</span>
+                        {report.status === 'resolved' && (
+                          <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>Done</span>
                         )}
                       </div>
                     </div>
@@ -313,12 +313,12 @@ function DepartmentDashboard() {
                           <td style={{ padding: '14px 16px', fontSize: 12, color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>{new Date(report.created_at).toLocaleDateString()}</td>
                           <td style={{ padding: '14px 16px' }}>
                             <div style={{ display: 'flex', gap: 6 }} onClick={(e) => e.stopPropagation()}>
-                              {report.status === 'IN_PROGRESS' && (
+                              {report.status === 'in_progress' && (
                                 <button onClick={() => handleAction(report.id, 'resolve')} disabled={!!actionLoading[report.id]} className="dd-btn-resolve">
                                   {actionLoading[report.id] === 'resolve' ? 'Updating...' : 'Mark Complete'}
                                 </button>
                               )}
-                              {report.status === 'RESOLVED' && (
+                              {report.status === 'resolved' && (
                                 <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>✓ Done</span>
                               )}
                             </div>

@@ -193,7 +193,7 @@ async def create_report(
         report_data = {
             "description": description,
             "user_id": user["user_id"],
-            "status": "PENDING",
+            "status": "submitted",
             "category": text_category,
             "latitude": latitude,
             "longitude": longitude,
@@ -233,7 +233,7 @@ async def create_report(
             print(f"[EMAIL ERROR] Failed to send submitted email: {e}")
         
         run_ai_analysis(report_id, description, file_bytes)
-        log_activity(report_id, user["user_id"], "SUBMITTED", {"description": description[:100] if description else ""})
+        log_activity(report_id, user["user_id"], "submitted", {"description": description[:100] if description else ""})
         return {
             "success": True,
             "message": "Report created successfully. AI analysis running in background.",
@@ -266,7 +266,7 @@ async def get_stats():
         total = supabase.table("reports").select("id", count="exact", head=True).execute()
         active = supabase.table("reports").select("id", count="exact", head=True).eq("status", "submitted").execute()
         resolved = supabase.table("reports").select("id", count="exact", head=True).eq("status", "resolved").execute()
-        high = supabase.table("reports").select("id", count="exact", head=True).eq("risk_level", "HIGH").execute()
+        high = supabase.table("reports").select("id", count="exact", head=True).eq("risk_level", "high").execute()
         
         return {
             "status": "success",
@@ -330,7 +330,7 @@ async def get_all_reports(
                 "id": report.get("id"),
                 "description": report.get("description"),
                 "category": report.get("category", "other"),
-                "risk_level": report.get("risk_level", "LOW"),
+                "risk_level": report.get("risk_level", "low"),
                 "latitude": report.get("latitude"),
                 "longitude": report.get("longitude"),
                 "image_url": report.get("image_url"),
@@ -400,13 +400,13 @@ async def get_department_reports(
                 "id": report.get("id"),
                 "description": report.get("description"),
                 "category": report.get("category", "other"),
-                "risk_level": report.get("risk_level", "LOW"),
+                "risk_level": report.get("risk_level", "low"),
                 "latitude": report.get("latitude"),
                 "longitude": report.get("longitude"),
                 "image_url": report.get("image_url"),
                 "created_at": report.get("created_at"),
                 "user_id": report.get("user_id"),
-                "status": report.get("status", "PENDING"),
+                "status": report.get("status", "submitted"),
                 "department": report.get("department"),
             })
 
@@ -438,12 +438,12 @@ async def start_work_report(report_id: str, user = Depends(get_current_user)):
         if len(report_result.data) == 0:
             return {"message": "Report not found", "status": "error"}
         current_status = report_result.data[0]["status"]
-        if current_status != "PENDING":
+        if current_status != "submitted":
             return {"message": f"Cannot assign report with status '{current_status}'. Only submitted reports can be assigned.", "status": "error"}
         category = report_result.data[0]["category"]
         department = DEPARTMENT_MAPPING.get(category)
         update_data = {
-            "status": "IN_PROGRESS",
+            "status": "in_progress",
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         if department:
@@ -451,7 +451,7 @@ async def start_work_report(report_id: str, user = Depends(get_current_user)):
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
         if len(result.data) == 0:
             return {"message": "Report not found", "status": "error"}
-        return {"status": "IN_PROGRESS", "department": department}
+        return {"status": "in_progress", "department": department}
     except Exception as e:
         return {"message": "Failed to assign report", "status": "error", "error": str(e)}
 
@@ -466,10 +466,10 @@ async def assign_report(report_id: str, department: str = Form(...), user = Depe
         if len(report_result.data) == 0:
             return {"message": "Report not found", "status": "error"}
         current_status = report_result.data[0]["status"]
-        if current_status != "PENDING":
+        if current_status != "submitted":
             return {"message": f"Cannot assign report with status '{current_status}'. Only submitted reports can be assigned.", "status": "error"}
         update_data = {
-            "status": "ASSIGNED",
+            "status": "assigned",
             "department": department,
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
@@ -486,7 +486,7 @@ async def assign_report(report_id: str, department: str = Form(...), user = Depe
         except Exception as e:
             print(f"[EMAIL ERROR] Failed to send assigned email: {e}")
         
-        return {"status": "ASSIGNED", "department": department}
+        return {"status": "assigned", "department": department}
     except Exception as e:
         return {"message": "Failed to assign report", "status": "error", "error": str(e)}
 
@@ -532,7 +532,7 @@ async def resolve_report(report_id: str, user = Depends(get_current_user)):
             return {"message": "Report not found", "status": "error"}
         
         update_data = {
-            "status": "RESOLVED",
+            "status": "resolved",
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
@@ -548,7 +548,7 @@ async def resolve_report(report_id: str, user = Depends(get_current_user)):
         except Exception as e:
             print(f"[EMAIL ERROR] Failed to send resolved email: {e}")
         
-        return {"status": "RESOLVED"}
+        return {"status": "resolved"}
     except Exception as e:
         return {"message": "Failed to resolve report", "status": "error", "error": str(e)}
 
@@ -564,7 +564,7 @@ async def reject_report(report_id: str, user = Depends(get_current_user)):
             return {"message": "Report not found", "status": "error"}
         
         update_data = {
-            "status": "REJECTED",
+            "status": "rejected",
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
@@ -580,7 +580,7 @@ async def reject_report(report_id: str, user = Depends(get_current_user)):
         except Exception as e:
             print(f"[EMAIL ERROR] Failed to send rejected email: {e}")
         
-        return {"status": "REJECTED"}
+        return {"status": "rejected"}
     except Exception as e:
         return {"message": "Failed to reject report", "status": "error", "error": str(e)}
 

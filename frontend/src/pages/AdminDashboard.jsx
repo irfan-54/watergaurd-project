@@ -29,12 +29,12 @@ const RISK_BADGE = {
   LOW:    { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
 }
 const STATUS_BADGE = {
-  PENDING:          { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
-  IN_PROGRESS:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
-  ASSIGNED:        { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
-  AWAITING_REVIEW: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
-  RESOLVED:        { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
-  REJECTED:        { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+  submitted:        { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  in_progress:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  assigned:         { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
+  awaiting_review: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
+  resolved:         { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+  rejected:         { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
 }
 const ROLE_BADGE = {
   admin:      { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
@@ -61,12 +61,12 @@ const Badge = ({ label, badgeData }) => (
 )
 
 const getStatusDisplay = s => ({ 
-  PENDING:'Pending', 
-  ASSIGNED:'Assigned', 
-  IN_PROGRESS:'In Progress', 
-  AWAITING_REVIEW:'Awaiting Review',
-  RESOLVED:'Resolved', 
-  REJECTED:'Rejected' 
+  submitted:'Submitted', 
+  assigned:'Assigned', 
+  in_progress:'In Progress', 
+  awaiting_review:'Awaiting Review',
+  resolved:'Resolved', 
+  rejected:'Rejected' 
 }[s] || s)
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -421,13 +421,13 @@ function AdminDashboard() {
 
   // ── Stat values ──────────────────────────────────────────────────────────────
   const totalReports    = pagination.total_count > 0 ? pagination.total_count : reports.length
-  const pendingCount    = reports.filter(r => r.status === 'OPEN').length
-  const assignedCount   = reports.filter(r => r.status === 'IN_PROGRESS').length
-  const resolvedCount   = reports.filter(r => r.status === 'RESOLVED').length
+  const submittedCount = reports.filter(r => r.status === 'submitted').length
+  const assignedCount   = reports.filter(r => r.status === 'in_progress').length
+  const resolvedCount   = reports.filter(r => r.status === 'resolved').length
 
   const STAT_CARDS = [
     { label:'Total Reports',  value: totalReports,  icon: <IconReport />,  accent:'#3B82F6' },
-    { label:'Pending Review', value: pendingCount,  icon: <IconAlert />,   accent:'#F59E0B' },
+    { label:'Submitted', value: submittedCount,  icon: <IconAlert />,   accent:'#F59E0B' },
     { label:'Assigned',       value: assignedCount, icon: <IconClock />,   accent:'#6366F1' },
     { label:'Resolved',       value: resolvedCount, icon: <IconCheck />,   accent:'#22C55E' },
   ]
@@ -537,7 +537,7 @@ function AdminDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
                   <Select value={exportFilters.dateRange} onChange={v => setExportFilters(p=>({...p,dateRange:v}))} options={[{value:'all',label:'All Time'},{value:'1d',label:'Today'},{value:'7d',label:'Last 7 Days'},{value:'30d',label:'Last 30 Days'}]} style={{ width: '100%' }} />
                   <Select value={exportFilters.category}  onChange={v => setExportFilters(p=>({...p,category:v}))}  options={[{value:'leakage',label:'Leakage'},{value:'blockage',label:'Blockage'},{value:'contamination',label:'Contamination'},{value:'other',label:'Other'}]} placeholder="All Categories" style={{ width: '100%' }} />
-                  <Select value={exportFilters.status}    onChange={v => setExportFilters(p=>({...p,status:v}))}    options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]} placeholder="All Statuses" style={{ width: '100%' }} />
+                  <Select value={exportFilters.status}    onChange={v => setExportFilters(p=>({...p,status:v}))}    options={[{value:'submitted',label:'Submitted'},{value:'in_progress',label:'In Progress'},{value:'resolved',label:'Resolved'},{value:'rejected',label:'Rejected'}]} placeholder="All Statuses" style={{ width: '100%' }} />
                   <Select value={exportFilters.risk}      onChange={v => setExportFilters(p=>({...p,risk:v}))}      options={[{value:'HIGH',label:'High'},{value:'MEDIUM',label:'Medium'},{value:'LOW',label:'Low'}]} placeholder="All Risks" style={{ width: '100%' }} />
                 </div>
                 <ActionBtn onClick={handleExportFiltered} disabled={exporting} variant="primary">
@@ -570,7 +570,7 @@ function AdminDashboard() {
                   </div>
                   <Select value={filters.risk}     onChange={v => setFilters(p=>({...p,risk:v}))}     options={[{value:'HIGH',label:'HIGH'},{value:'MEDIUM',label:'MEDIUM'},{value:'LOW',label:'LOW'}]} placeholder="All Risks" />
                   <Select value={filters.category} onChange={v => setFilters(p=>({...p,category:v}))} options={[{value:'leakage',label:'Leakage'},{value:'contamination',label:'Contamination'},{value:'blockage',label:'Blockage'},{value:'other',label:'Other'}]} placeholder="All Categories" />
-                  <Select value={filters.status}   onChange={v => setFilters(p=>({...p,status:v}))}   options={[{value:'PENDING',label:'Pending'},{value:'IN_PROGRESS',label:'In Progress'},{value:'RESOLVED',label:'Resolved'},{value:'REJECTED',label:'Rejected'}]} placeholder="All Statuses" />
+                  <Select value={filters.status}   onChange={v => setFilters(p=>({...p,status:v}))}   options={[{value:'submitted',label:'Submitted'},{value:'in_progress',label:'In Progress'},{value:'resolved',label:'Resolved'},{value:'rejected',label:'Rejected'}]} placeholder="All Statuses" />
                   {(filters.risk || filters.category || filters.status || searchEmail) && (
                     <button onClick={() => { setFilters({risk:'',category:'',status:''}); setSearchEmail('') }} style={{ background: 'none', border: 'none', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Clear</button>
                   )}
@@ -605,10 +605,10 @@ function AdminDashboard() {
                             <span style={{ color: 'rgba(255,255,255,0.35)' }}>{new Date(report.created_at).toLocaleDateString()}</span>
                           </p>
                           <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
-                            {report.status === 'PENDING' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}</ActionBtn>}
-                            {report.status === 'IN_PROGRESS' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
-                            {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
-                            {(report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
+                            {report.status === 'submitted' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}</ActionBtn>}
+                            {report.status === 'in_progress' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
+                            {(report.status === 'submitted' || report.status === 'assigned' || report.status === 'in_progress') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                            {(report.status === 'resolved' || report.status === 'rejected') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                           </div>
                         </div>
                       ))}
@@ -639,10 +639,10 @@ function AdminDashboard() {
                               <td style={{ padding: '14px 18px', whiteSpace: 'nowrap', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{new Date(report.created_at).toLocaleDateString()}</td>
                               <td style={{ padding: '14px 18px' }} onClick={e => e.stopPropagation()}>
                                 <div style={{ display: 'flex', gap: 6 }}>
-                                  {report.status === 'PENDING' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? '…' : 'Start Work'}</ActionBtn>}
-                                  {report.status === 'IN_PROGRESS' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
-                                  {(report.status === 'PENDING' || report.status === 'ASSIGNED' || report.status === 'IN_PROGRESS') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
-                                  {(report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
+                                  {report.status === 'submitted' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? '…' : 'Start Work'}</ActionBtn>}
+                                  {report.status === 'in_progress' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
+                                  {(report.status === 'submitted' || report.status === 'assigned' || report.status === 'in_progress') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                                  {(report.status === 'resolved' || report.status === 'rejected') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                                 </div>
                               </td>
                             </tr>

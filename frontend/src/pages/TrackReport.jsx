@@ -135,6 +135,8 @@ export default function TrackReport() {
   const sc = getStatusColor(report.status)
   const normalizedStatus = report.status?.toLowerCase() === 'pending' 
     ? 'submitted' 
+    : report.status?.toLowerCase() === 'submitted' 
+    ? 'submitted' 
     : report.status?.toLowerCase()
 
   return (

@@ -84,9 +84,9 @@ function CitizenDashboard() {
   }
 
   const totalReports = reports.length
-  const pendingReports = reports.filter(r => r.status === 'PENDING').length
-  const assignedReports = reports.filter(r => r.status === 'IN_PROGRESS').length
-  const resolvedReports = reports.filter(r => r.status === 'RESOLVED').length
+  const submittedReports = reports.filter(r => r.status === 'submitted').length
+  const inProgressReports = reports.filter(r => r.status === 'in_progress').length
+  const resolvedReports = reports.filter(r => r.status === 'resolved').length
 
   const totalPages = Math.ceil(reports.length / ITEMS_PER_PAGE)
   const paginatedReports = reports.slice(
@@ -96,21 +96,21 @@ function CitizenDashboard() {
 
   const getStatusBadge = (status) => {
     const map = {
-      PENDING: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
-      IN_PROGRESS: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
-      RESOLVED: { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
-      REJECTED: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+      submitted: { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+      in_progress: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+      resolved: { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+      rejected: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
     }
     return map[status] || { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: 'rgba(255,255,255,0.1)' }
   }
 
   const getStatusDisplay = (status) => {
     switch (status) {
-      case 'PENDING': return 'Pending'
-      case 'ASSIGNED': return 'Assigned'
-      case 'IN_PROGRESS': return 'In Progress'
-      case 'RESOLVED': return 'Resolved'
-      case 'REJECTED': return 'Rejected'
+      case 'submitted': return 'Submitted'
+      case 'assigned': return 'Assigned'
+      case 'in_progress': return 'In Progress'
+      case 'resolved': return 'Resolved'
+      case 'rejected': return 'Rejected'
       default: return status
     }
   }
@@ -194,8 +194,8 @@ function CitizenDashboard() {
 
   const statCards = [
     { label: 'My Reports', value: totalReports, icon: <ReportIcon />, accent: '#3B82F6' },
-    { label: 'Pending', value: pendingReports, icon: <ClockIcon />, accent: '#F59E0B' },
-    { label: 'In Progress', value: assignedReports, icon: <ProgressIcon />, accent: '#3B82F6' },
+    { label: 'Submitted', value: submittedReports, icon: <ClockIcon />, accent: '#F59E0B' },
+    { label: 'In Progress', value: inProgressReports, icon: <ProgressIcon />, accent: '#3B82F6' },
     { label: 'Resolved', value: resolvedReports, icon: <CheckIcon />, accent: '#22C55E' },
   ]
 
@@ -415,7 +415,7 @@ function CitizenDashboard() {
                           <span style={badgeStyle(getStatusBadge(report.status))}>{getStatusDisplay(report.status)}</span>
                         </div>
                       </div>
-                      {report.status === 'REJECTED' && report.rejection_reason && (
+                      {report.status === 'rejected' && report.rejection_reason && (
                         <p style={{ fontSize: 11, color: '#F87171', marginBottom: 6 }}>Reason: {report.rejection_reason}</p>
                       )}
 
@@ -448,7 +448,7 @@ function CitizenDashboard() {
                       {/* Row 4: buttons */}
                       <div style={{ display: 'flex', gap: 8 }} onClick={(e) => e.stopPropagation()}>
                         <button className="cd-btn-sm" style={{ background: '#3B82F6', color: 'white' }} onClick={() => navigate(`/track/${report.id}`)}>Track</button>
-                        {report.status === 'PENDING' && (
+                        {report.status === 'submitted' && (
                           <button className="cd-btn-sm" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.25)' }} onClick={() => navigate(`/edit-report/${report.id}`)}>Edit</button>
                         )}
                         <button className="cd-btn-sm" style={{ background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' }} onClick={() => handleDeleteClick(report.id)}>Delete</button>
@@ -497,7 +497,7 @@ function CitizenDashboard() {
                           <td style={{ padding: '14px 18px' }}>
                             <div style={{ display: 'flex', gap: 6 }}>
                               <button className="cd-btn-sm" style={{ background: '#3B82F6', color: 'white' }} onClick={(e) => { e.stopPropagation(); navigate(`/track/${report.id}`) }}>Track</button>
-                              {report.status === 'PENDING' && (
+                              {report.status === 'submitted' && (
                                 <button className="cd-btn-sm" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.25)' }} onClick={(e) => { e.stopPropagation(); navigate(`/edit-report/${report.id}`) }}>Edit</button>
                               )}
                               <button className="cd-btn-sm" style={{ background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' }} onClick={(e) => { e.stopPropagation(); handleDeleteClick(report.id) }}>Delete</button>
