@@ -91,7 +91,7 @@ export default function TrackReport() {
       resolved: 'This issue has been resolved. Thank you for reporting.',
       rejected: `Your report was not accepted. Reason: ${reason}`
     }
-    return map[report.status] || 'Status unknown.'
+    return map[report.status] || `Status: ${report.status || 'unknown'}`
   }
 
   const getStatusColor = (status) => {
@@ -133,6 +133,9 @@ export default function TrackReport() {
   )
 
   const sc = getStatusColor(report.status)
+  const normalizedStatus = report.status?.toLowerCase() === 'pending' 
+    ? 'submitted' 
+    : report.status?.toLowerCase()
 
   return (
     <>
@@ -271,7 +274,7 @@ export default function TrackReport() {
 
           {/* SECTION 2: STEPPER */}
           <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={2}>
-            <ReportStepper currentStatus={report.status} />
+            <ReportStepper currentStatus={normalizedStatus} />
           </motion.div>
 
           {/* SECTION 3: STATUS CARD */}
@@ -370,7 +373,7 @@ export default function TrackReport() {
                     <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
                       {formatDateTime(c.created_at)}
                     </p>
-                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{c.content}</p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{c.comment}</p>
                   </div>
                 ))}
               </div>
