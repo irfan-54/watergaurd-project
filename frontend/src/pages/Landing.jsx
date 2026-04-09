@@ -153,10 +153,19 @@ export default function Landing() {
           background: #22c55e;
         }
         .grid-bg { background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 50px 50px; }
+        @media (max-width: 480px) {
+          .btn-nav-ghost, .btn-nav-primary {
+            padding: 6px 12px !important;
+            font-size: 13px !important;
+          }
+          .landing-cta-inner {
+            padding: 40px 24px !important;
+          }
+        }
       `}</style>
 
       {/* NAVBAR */}
-      <nav className="glass-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '0 40px' }}>
+      <nav className="glass-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '0 clamp(16px, 4vw, 40px)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
           <AnimatedLogo size={28} intensity={0.8} textSize={20} />
           <div style={{ display: 'flex', gap: 12 }}>
@@ -225,8 +234,8 @@ export default function Landing() {
       {/* FEATURES */}
       <section style={{ padding: '60px 24px 100px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 60 }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 40, fontWeight: 800, marginBottom: 16 }}>Built for communities</h2>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: 60, overflowX: 'hidden', maxWidth: '100%' }}>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(28px, 6vw, 40px)', fontWeight: 800, marginBottom: 16 }}>Built for communities</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16 }}>Everything you need to report, track and resolve water issues</p>
           </motion.div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
@@ -285,9 +294,9 @@ export default function Landing() {
 
       {/* CTA */}
       <section style={{ padding: '0 24px 100px' }}>
-        <motion.div className="glass" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+        <motion.div className="glass landing-cta-inner" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
           style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', padding: '64px 40px', background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.05))', border: '1px solid rgba(59,130,246,0.2)' }}>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, marginBottom: 16 }}>Ready to protect your community?</h2>
+          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, marginBottom: 16 }}>Ready to protect your community?</h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 36, fontSize: 16 }}>Join thousands of citizens making a difference every day</p>
           <button className="btn-primary" style={{ fontSize: 16, padding: '16px 36px' }} onClick={() => navigate('/signup')}>Get Started Free →</button>
         </motion.div>
