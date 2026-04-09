@@ -383,7 +383,7 @@ async def get_department_reports(
         if status:
             count_query = count_query.eq("status", status)
         else:
-            count_query = count_query.eq("status", "assigned")
+            count_query = count_query.in_("status", ["assigned", "ASSIGNED", "in_progress", "IN_PROGRESS"])
         count_result = count_query.execute()
         total_count = count_result.count or 0
 
@@ -391,7 +391,7 @@ async def get_department_reports(
         if status:
             data_query = data_query.eq("status", status)
         else:
-            data_query = data_query.eq("status", "assigned")
+            data_query = data_query.in_("status", ["assigned", "ASSIGNED", "in_progress", "IN_PROGRESS"])
         result = data_query.execute()
 
         reports = []

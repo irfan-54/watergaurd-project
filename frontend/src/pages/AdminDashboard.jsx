@@ -30,11 +30,17 @@ const RISK_BADGE = {
 }
 const STATUS_BADGE = {
   submitted:        { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  PENDING:          { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
+  pending:          { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
   in_progress:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
+  IN_PROGRESS:      { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
   assigned:         { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
+  ASSIGNED:         { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
   awaiting_review: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
   resolved:         { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
+  RESOLVED:         { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
   rejected:         { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+  REJECTED:         { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
 }
 const ROLE_BADGE = {
   admin:      { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
@@ -62,11 +68,17 @@ const Badge = ({ label, badgeData }) => (
 
 const getStatusDisplay = s => ({ 
   submitted:'Submitted', 
+  PENDING:'Submitted',
+  pending:'Submitted',
   assigned:'Assigned', 
+  ASSIGNED:'Assigned',
   in_progress:'In Progress', 
+  IN_PROGRESS:'In Progress',
   awaiting_review:'Awaiting Review',
   resolved:'Resolved', 
-  rejected:'Rejected' 
+  RESOLVED:'Resolved',
+  rejected:'Rejected',
+  REJECTED:'Rejected'
 }[s] || s)
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -421,9 +433,9 @@ function AdminDashboard() {
 
   // ── Stat values ──────────────────────────────────────────────────────────────
   const totalReports    = pagination.total_count > 0 ? pagination.total_count : reports.length
-  const submittedCount = reports.filter(r => r.status === 'submitted').length
-  const assignedCount   = reports.filter(r => r.status === 'in_progress').length
-  const resolvedCount   = reports.filter(r => r.status === 'resolved').length
+  const submittedCount = reports.filter(r => ['submitted','PENDING','pending'].includes(r.status)).length
+  const assignedCount   = reports.filter(r => ['in_progress','IN_PROGRESS'].includes(r.status)).length
+  const resolvedCount   = reports.filter(r => ['resolved','RESOLVED'].includes(r.status)).length
 
   const STAT_CARDS = [
     { label:'Total Reports',  value: totalReports,  icon: <IconReport />,  accent:'#3B82F6' },
@@ -605,10 +617,9 @@ function AdminDashboard() {
                             <span style={{ color: 'rgba(255,255,255,0.35)' }}>{new Date(report.created_at).toLocaleDateString()}</span>
                           </p>
                           <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
-                            {report.status === 'submitted' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}</ActionBtn>}
-                            {report.status === 'in_progress' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
-                            {(report.status === 'submitted' || report.status === 'assigned' || report.status === 'in_progress') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
-                            {(report.status === 'resolved' || report.status === 'rejected') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
+                            {(report.status === 'submitted' || report.status === 'PENDING' || report.status === 'pending') && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? 'Starting…' : 'Start Work'}</ActionBtn>}
+                            {!(report.status === 'resolved' || report.status === 'RESOLVED' || report.status === 'rejected' || report.status === 'REJECTED') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                            {(report.status === 'resolved' || report.status === 'rejected' || report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                           </div>
                         </div>
                       ))}
@@ -639,10 +650,9 @@ function AdminDashboard() {
                               <td style={{ padding: '14px 18px', whiteSpace: 'nowrap', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{new Date(report.created_at).toLocaleDateString()}</td>
                               <td style={{ padding: '14px 18px' }} onClick={e => e.stopPropagation()}>
                                 <div style={{ display: 'flex', gap: 6 }}>
-                                  {report.status === 'submitted' && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? '…' : 'Start Work'}</ActionBtn>}
-                                  {report.status === 'in_progress' && <ActionBtn onClick={() => handleResolve(report.id)} variant="success" small>Resolve</ActionBtn>}
-                                  {(report.status === 'submitted' || report.status === 'assigned' || report.status === 'in_progress') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
-                                  {(report.status === 'resolved' || report.status === 'rejected') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
+                                  {(report.status === 'submitted' || report.status === 'PENDING' || report.status === 'pending') && <ActionBtn onClick={() => handleStartWork(report.id)} disabled={startingWorkIds.has(report.id)} variant="primary" small>{startingWorkIds.has(report.id) ? '…' : 'Start Work'}</ActionBtn>}
+                                  {!(report.status === 'resolved' || report.status === 'RESOLVED' || report.status === 'rejected' || report.status === 'REJECTED') && <ActionBtn onClick={() => setRejectConfirmation(report.id)} variant="danger" small>Reject</ActionBtn>}
+                                  {(report.status === 'resolved' || report.status === 'rejected' || report.status === 'RESOLVED' || report.status === 'REJECTED') && <ActionBtn onClick={() => handleDelete(report.id)} variant="danger" small>Delete</ActionBtn>}
                                 </div>
                               </td>
                             </tr>
