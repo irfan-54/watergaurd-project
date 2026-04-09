@@ -162,6 +162,11 @@ export default function Landing() {
             padding: 40px 24px !important;
           }
         }
+        @media (max-width: 640px) {
+          .landing-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -215,7 +220,7 @@ export default function Landing() {
 
       {/* STATS */}
       <section style={{ padding: '80px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
+        <div className="landing-stats-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
           {[
             { label: 'Total Reports', value: stats.total },
             { label: 'Active Alerts', value: stats.active },
