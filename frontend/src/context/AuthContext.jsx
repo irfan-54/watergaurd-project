@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('role, department')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single()
 
       console.log("Profile:", data)
@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
             const { data: newProfile, error: insertError } = await supabase
               .from('profiles')
               .insert({ 
-                user_id: userId, 
+                id: userId, 
                 email: userEmail || null,
                 role: 'citizen', 
                 department: null 
