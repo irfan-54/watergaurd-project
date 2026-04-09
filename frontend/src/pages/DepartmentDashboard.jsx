@@ -165,6 +165,11 @@ function DepartmentDashboard() {
         .dd-btn-resolve:disabled { opacity: 0.4; cursor: not-allowed; }
         @media (max-width: 768px) { .dd-desktop { display: none !important; } }
         @media (min-width: 769px) { .dd-mobile { display: none !important; } }
+        @media (max-width: 640px) {
+          .dept-stat-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
       `}</style>
 
       <div className="dd-page">
@@ -194,7 +199,7 @@ function DepartmentDashboard() {
           )}
 
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+          <div className="dept-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
             {statCards.map((s, i) => (
               <motion.div key={s.label} className="dd-stat-card" variants={fadeUp} initial="hidden" animate="visible" custom={i + 1}>
                 <div style={{
