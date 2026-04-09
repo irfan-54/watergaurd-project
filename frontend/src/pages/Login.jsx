@@ -35,13 +35,44 @@ function Login() {
   }, [user, role, navigate])
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/login` 
       }
     })
-    if (error) toast.error('Google login failed')
+    if (error) {
+      toast.error('Google login failed')
+      return
+    }
+
+    // After successful OAuth, fetch user role and redirect
+    if (data?.user) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+
+        if (profile?.role) {
+          if (profile.role === 'admin') {
+            navigate('/admin')
+          } else if (profile.role === 'department') {
+            navigate('/department')
+          } else {
+            // 'citizen' or fallback
+            navigate('/dashboard')
+          }
+        } else {
+          // Fallback if no role found
+          navigate('/dashboard')
+        }
+      } catch (err) {
+        console.error('Error fetching role after Google login:', err)
+        navigate('/dashboard') // fallback
+      }
+    }
   }
 
   const handleSubmit = async (e) => {

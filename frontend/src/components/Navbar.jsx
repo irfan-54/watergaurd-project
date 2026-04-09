@@ -187,6 +187,11 @@ function Navbar() {
         }
         .wg-mobile-menu.open {
           display: block;
+          position: fixed;
+          top: 64px;
+          left: 0;
+          right: 0;
+          z-index: 49;
         }
         .wg-mobile-link {
           display: block;
@@ -254,13 +259,13 @@ function Navbar() {
             )}
             {authUser && role === 'admin' && (
               <>
-                <Link to="/admin" className="wg-nav-link" style={navLinkStyle('/admin')}>Admin Dashboard</Link>
-                <Link to="/map" className="wg-nav-link" style={navLinkStyle('/map')}>Map</Link>
-                <Link to="/analytics" className="wg-nav-link" style={navLinkStyle('/analytics')}>Analytics</Link>
+                <Link to="/admin" className="wg-nav-link" style={navLinkStyle('/admin')} onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</Link>
+                <Link to="/map" className="wg-nav-link" style={navLinkStyle('/map')} onClick={() => setMobileMenuOpen(false)}>Map</Link>
+                <Link to="/analytics" className="wg-nav-link" style={navLinkStyle('/analytics')} onClick={() => setMobileMenuOpen(false)}>Analytics</Link>
               </>
             )}
             {authUser && role === 'citizen' && (
-              <Link to="/citizen" className="wg-nav-link" style={navLinkStyle('/citizen')}>My Reports</Link>
+              <Link to="/citizen" className="wg-nav-link" style={navLinkStyle('/citizen')} onClick={() => setMobileMenuOpen(false)}>My Reports</Link>
             )}
           </div>
 

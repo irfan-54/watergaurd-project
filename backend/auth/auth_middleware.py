@@ -35,7 +35,7 @@ def get_current_user(request: Request):
         try:
             result = supabase.table("profiles")\
                 .select("role, department")\
-                .eq("user_id", user_id)\
+                .eq("id", user_id)\
                 .single()\
                 .execute()
             

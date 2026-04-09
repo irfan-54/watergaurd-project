@@ -22,7 +22,7 @@ def get_clip_model():
             # Removed noisy logs for cleaner startup
             clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
             clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-            success("CLIP model loaded successfully")
+            # CLIP model loading message moved to ai_processor.py for cleaner startup
         except Exception as e:
             from logger import error
             error(f"CLIP ERROR: Failed to load CLIP model: {e}")

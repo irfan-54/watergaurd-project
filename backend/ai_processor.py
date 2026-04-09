@@ -10,9 +10,12 @@ import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from image_verifier import verify_image
 from db import supabase
-from logger import log_system_status, success, error, warning, info, step
+from logger import success, error, warning, info, step
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
-import pynvml
+try:
+    import pynvml
+except ImportError:
+    pynvml = None
 
 # Configure logging
 logging.basicConfig(
@@ -22,11 +25,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_gpu_util():
-    try:
-        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-        util = pynvml.nvmlDeviceGetUtilizationRates(handle)
-        return util.gpu
-    except:
+    if pynvml:
+        try:
+            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+            util = pynvml.nvmlDeviceGetUtilizationRates(handle)
+            return util.gpu
+        except:
+            return 0
+    else:
+        print("GPU monitoring disabled (pynvml not available)")
         return 0
 
 def animated_loading(task_name):
@@ -36,11 +43,18 @@ def animated_loading(task_name):
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeElapsedColumn(),
     ) as progress:
-        task = progress.add_task(task_name, total=100)
 
-        for i in range(100):
-            time.sleep(0.01)  # adjust speed
-            progress.update(task, advance=1)
+        # Quiet loading - no verbose task descriptions
+        nlp_task = progress.add_task("Loading...", total=100)
+        clip_task = progress.add_task("Loading...", total=100)
+        gpu_task = progress.add_task("Loading...", total=100)
+
+        while not progress.finished:
+            progress.update(nlp_task, advance=0.8)
+            progress.update(clip_task, advance=1.2)
+            progress.update(gpu_task, advance=0.6)
+
+            time.sleep(0.05)
 
 def parallel_loading():
     with Progress(
@@ -51,9 +65,9 @@ def parallel_loading():
             refresh_per_second=10,
     ) as progress:
 
-        nlp_task = progress.add_task("🧠 Loading NLP model...", total=100)
-        clip_task = progress.add_task("🖼️ Loading CLIP model...", total=100)
-        gpu_task = progress.add_task("⚡ Initializing GPU...", total=100)
+        nlp_task = progress.add_task("Loading...", total=100)
+        clip_task = progress.add_task("Loading...", total=100)
+        gpu_task = progress.add_task("Loading...", total=100)
 
         while not progress.finished:
             progress.update(nlp_task, advance=0.8)
@@ -157,7 +171,6 @@ def load_nlp_model():
             error(f"CLIP Model failed: {e}")
         
         # Display system initialization with real status
-        log_system_status(nlp_status, clip_status, device.type.upper())
         success("AI System Ready")
         
         # Development debug info

@@ -341,6 +341,11 @@ function CitizenDashboard() {
         @media (min-width: 769px) {
           .cd-mobile-list { display: none !important; }
         }
+        @media (max-width: 640px) {
+          .cd-stat-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
       `}</style>
 
       <div className="cd-page">
@@ -366,7 +371,7 @@ function CitizenDashboard() {
           </motion.div>
 
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+          <div className="cd-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
             {statCards.map((s, i) => (
               <motion.div key={s.label} className="cd-stat-card" variants={fadeUp} initial="hidden" animate="visible" custom={i + 1}>
                 <div style={{

@@ -167,7 +167,7 @@ export default function Landing() {
       </nav>
 
       {/* HERO */}
-      <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', overflowX: 'hidden' }}>
         <section className="grid-bg" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', paddingTop: 64 }}>
           {/* 3D Water Blob Background */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
@@ -179,11 +179,11 @@ export default function Landing() {
           <div className="orb" style={{ width: 400, height: 400, background: 'rgba(99,102,241,0.1)', top: '30%', right: '-5%', animationDelay: '3s' }} />
           <div className="orb" style={{ width: 300, height: 300, background: 'rgba(59,130,246,0.08)', bottom: '10%', left: '30%', animationDelay: '6s' }} />
 
-          <div style={{ textAlign: 'center', maxWidth: 760, padding: '0 24px', position: 'relative', zIndex: 10 }}>
+          <div style={{ textAlign: 'center', maxWidth: 760, padding: '0 16px', position: 'relative', zIndex: 10 }}>
             <div className="ai-badge">AI-Powered Platform</div>
 
             <motion.h1 variants={fadeUp} initial="hidden" animate="visible" custom={1}
-              style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(42px, 7vw, 80px)', fontWeight: 800, lineHeight: 1.1, marginBottom: 24, letterSpacing: '-1px' }}>
+              style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(32px, 6vw, 80px)', fontWeight: 800, lineHeight: 1.1, marginBottom: 24, letterSpacing: '-1px' }}>
               Protect Your<br />
               <span style={{ background: 'linear-gradient(135deg, #3B82F6, #60A5FA, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Community's Water

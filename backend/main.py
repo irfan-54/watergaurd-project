@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from db import supabase, SUPABASE_URL, SUPABASE_KEY
 from auth.auth_middleware import get_current_user
-from logger import log_system_status, success, error, warning, info, step, request_received
+from logger import success, error, warning, info, step, request_received
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded

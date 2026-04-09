@@ -37,27 +37,6 @@ def get_real_gpu_info():
 def format_line(emoji, label, value):
     return f"{emoji} {label:<14} → {value}"
 
-def log_system_status(nlp_status, clip_status, device):
-    """Display system initialization status with colored output"""
-    gpu = get_real_gpu_info()
-    
-    console.print(
-        Panel.fit(
-            "\n".join([
-                "[bold cyan]🚀 WATERGUARD AI SYSTEM INITIALIZED[/bold cyan]\n",
-                format_line("🧠", "NLP Model", nlp_status),
-                format_line("🖼️", "CLIP Model", clip_status),
-                format_line("⚡", "Device", device),
-                "",
-                "⚡ GPU INFO",
-                format_line("  ", "Device", gpu["name"]),
-                format_line("  ", "Memory", gpu["memory"]),
-                format_line("  ", "Util", gpu["utilization"]),
-            ]),
-            border_style="cyan"
-        )
-    )
-
 def success(msg):
     """Print success message in green"""
     console.print(f"[green]✅ {msg}[/green]")
