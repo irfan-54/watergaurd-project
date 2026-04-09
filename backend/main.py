@@ -440,6 +440,8 @@ async def get_department_reports(
         return {"status": "error", "message": "Failed to retrieve reports", "error": str(e)}
     print(f"[START WORK] user: {user}")
     
+@app.put('/reports/{report_id}/start')
+async def start_work_report(report_id: str, user = Depends(get_current_user)):
     if user.get("role") not in ["admin", "department"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     if supabase is None:
@@ -453,11 +455,10 @@ async def get_department_reports(
             print(f"[START WORK] ERROR: Report not found")
             return {"message": "Report not found", "status": "error"}
         current_status = report_result.data[0]["status"]
-        print(f"[START WORK] current_status: {current_status}")
+        print(f"[START WORK] Found report with status: {current_status}")
         
-        if current_status not in ["submitted", "PENDING", "pending"]:
-            print(f"[START WORK] ERROR: Invalid status '{current_status}'")
-            return {"message": f"Cannot assign report with status '{current_status}'. Only submitted reports can be assigned.", "status": "error"}
+        if current_status in ["resolved", "RESOLVED", "rejected", "REJECTED"]:
+            raise HTTPException(status_code=400, detail="Cannot start work on a resolved or rejected report")
         category = report_result.data[0]["category"]
         print(f"[START WORK] category: {category}")
         

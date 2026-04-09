@@ -265,7 +265,10 @@ function Navbar() {
               </>
             )}
             {authUser && role === 'citizen' && (
-              <Link to="/citizen" className="wg-nav-link" style={navLinkStyle('/citizen')} onClick={() => setMobileMenuOpen(false)}>My Reports</Link>
+              <>
+                <Link to="/citizen" className="wg-nav-link" style={navLinkStyle('/citizen')} onClick={() => setMobileMenuOpen(false)}>My Reports</Link>
+                <Link to="/map" className="wg-nav-link" style={navLinkStyle('/map')} onClick={() => setMobileMenuOpen(false)}>Map</Link>
+              </>
             )}
           </div>
 
@@ -324,7 +327,10 @@ function Navbar() {
           )}
 
           {authUser && role === 'citizen' && (
-            <Link to="/citizen" className={`wg-mobile-link ${pathname === '/citizen' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>My Reports</Link>
+            <>
+              <Link to="/citizen" className={`wg-mobile-link ${pathname === '/citizen' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>My Reports</Link>
+              <Link to="/map" className={`wg-mobile-link ${pathname === '/map' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>Map</Link>
+            </>
           )}
 
           <div className="wg-mobile-divider" />
