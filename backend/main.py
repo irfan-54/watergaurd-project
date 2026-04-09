@@ -373,29 +373,38 @@ async def get_department_reports(
     if user.get("role") != "department":
         raise HTTPException(status_code=403, detail="Only department workers can access this")
     dept = user.get("department")
+    print(f"[DEPT REPORTS] dept: {dept}")
+    
     if not dept:
         raise HTTPException(status_code=400, detail="No department assigned to this user")
     try:
         offset = (page - 1) * limit
 
-        # Filter by department column directly
-        count_query = supabase.table("reports").select("id", count="exact").eq("department", dept)
-        if status:
-            count_query = count_query.eq("status", status)
-        else:
-            count_query = count_query.in_("status", ["assigned", "ASSIGNED", "in_progress", "IN_PROGRESS"])
-        count_result = count_query.execute()
+        # Simple query - filter by department_name only, no status filter
+        print(f"[DEPT REPORTS] Executing count query...")
+        try:
+            count_result = supabase.table("reports").select("id", count="exact").eq("department_name", dept).execute()
+            print(f"[DEPT REPORTS] count result: {count_result}")
+        except Exception as e:
+            print(f"[DEPT REPORTS] Count query failed: {str(e)}")
+            print(f"[DEPT REPORTS] Count query exception type: {type(e)}")
+            raise
+        
         total_count = count_result.count or 0
+        print(f"[DEPT REPORTS] total_count: {total_count}")
 
-        data_query = supabase.table("reports").select("*").eq("department", dept).order("created_at", desc=True).range(offset, offset + limit - 1)
-        if status:
-            data_query = data_query.eq("status", status)
-        else:
-            data_query = data_query.in_("status", ["assigned", "ASSIGNED", "in_progress", "IN_PROGRESS"])
-        result = data_query.execute()
+        print(f"[DEPT REPORTS] Executing data query...")
+        try:
+            data_result = supabase.table("reports").select("*").eq("department_name", dept).order("created_at", desc=True).range(offset, offset + limit - 1).execute()
+            print(f"[DEPT REPORTS] data result length: {len(data_result.data)}")
+            print(f"[DEPT REPORTS] data result: {data_result}")
+        except Exception as e:
+            print(f"[DEPT REPORTS] Data query failed: {str(e)}")
+            print(f"[DEPT REPORTS] Data query exception type: {type(e)}")
+            raise
 
         reports = []
-        for report in result.data:
+        for report in data_result.data:
             reports.append({
                 "id": report.get("id"),
                 "description": report.get("description"),
@@ -407,11 +416,12 @@ async def get_department_reports(
                 "created_at": report.get("created_at"),
                 "user_id": report.get("user_id"),
                 "status": report.get("status", "submitted"),
-                "department": report.get("department"),
+                "department_name": report.get("department_name"),
             })
 
         total_pages = (total_count + limit - 1) // limit
 
+        print(f"[DEPT REPORTS] returning status: success")
         return {
             "status": "success",
             "data": reports,
@@ -425,34 +435,58 @@ async def get_department_reports(
             }
         }
     except Exception as e:
+        print(f"[DEPT REPORTS] returning status: error - {str(e)}")
+        print(f"[DEPT REPORTS] exception type: {type(e)}")
         return {"status": "error", "message": "Failed to retrieve reports", "error": str(e)}
-
-@app.put('/reports/{report_id}/start')
-async def start_work_report(report_id: str, user = Depends(get_current_user)):
+    print(f"[START WORK] user: {user}")
+    
     if user.get("role") not in ["admin", "department"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     if supabase is None:
         return {"message": "Database not available", "status": "error"}
     try:
+        print(f"[START WORK] Fetching report from database...")
         report_result = supabase.table("reports").select("category", "status").eq("id", report_id).execute()
+        print(f"[START WORK] report_result.data: {report_result.data}")
+        
         if len(report_result.data) == 0:
+            print(f"[START WORK] ERROR: Report not found")
             return {"message": "Report not found", "status": "error"}
         current_status = report_result.data[0]["status"]
-        if current_status != "submitted":
+        print(f"[START WORK] current_status: {current_status}")
+        
+        if current_status not in ["submitted", "PENDING", "pending"]:
+            print(f"[START WORK] ERROR: Invalid status '{current_status}'")
             return {"message": f"Cannot assign report with status '{current_status}'. Only submitted reports can be assigned.", "status": "error"}
         category = report_result.data[0]["category"]
+        print(f"[START WORK] category: {category}")
+        
         department = DEPARTMENT_MAPPING.get(category)
+        print(f"[START WORK] mapped department: {department}")
+        
         update_data = {
             "status": "in_progress",
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         if department:
-            update_data["department"] = department
+            update_data["department_name"] = department
+        
+        print(f"[START WORK] update_data: {update_data}")
+        print(f"[START WORK] Executing Supabase update...")
+        
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
+        print(f"[START WORK] result.data: {result.data}")
+        print(f"[START WORK] result.data length: {len(result.data)}")
+        
         if len(result.data) == 0:
+            print(f"[START WORK] ERROR: Update failed, result.data is empty")
             return {"message": "Report not found", "status": "error"}
-        return {"status": "in_progress", "department": department}
+        
+        print(f"[START WORK] SUCCESS: Report updated successfully")
+        return {"status": "in_progress", "department_name": department}
     except Exception as e:
+        print(f"[START WORK] EXCEPTION: {str(e)}")
+        print(f"[START WORK] EXCEPTION TYPE: {type(e)}")
         return {"message": "Failed to assign report", "status": "error", "error": str(e)}
 
 @app.put('/reports/{report_id}/assign')
@@ -470,7 +504,7 @@ async def assign_report(report_id: str, department: str = Form(...), user = Depe
             return {"message": f"Cannot assign report with status '{current_status}'. Only submitted reports can be assigned.", "status": "error"}
         update_data = {
             "status": "assigned",
-            "department": department,
+            "department_name": department,
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
@@ -486,7 +520,7 @@ async def assign_report(report_id: str, department: str = Form(...), user = Depe
         except Exception as e:
             print(f"[EMAIL ERROR] Failed to send assigned email: {e}")
         
-        return {"status": "assigned", "department": department}
+        return {"status": "assigned", "department_name": department}
     except Exception as e:
         return {"message": "Failed to assign report", "status": "error", "error": str(e)}
 
@@ -494,7 +528,7 @@ async def assign_report(report_id: str, department: str = Form(...), user = Depe
 async def get_comments(report_id: str):
     try:
         result = supabase.table("comments") \
-            .select("*") \
+            .select("*, profiles(email)") \
             .eq("report_id", report_id) \
             .order("created_at", desc=True) \
             .execute()

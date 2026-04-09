@@ -404,8 +404,11 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
                 <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 16 }}>
                   {comments.map(comment => (
                     <div key={comment.id} className="rm-comment-bubble">
+                      <p style={{fontSize:'11px', color:'#888', marginBottom:'4px'}}>
+                        {comment.profiles?.email || 'Unknown'}
+                      </p>
                       <p className="rm-comment-text">{comment.comment}</p>
-                      <p className="rm-comment-date">{formatDate(comment.created_at)}</p>
+                      <p className="rm-comment-date">{comment.created_at && !isNaN(new Date(comment.created_at)) ? new Date(comment.created_at).toLocaleString() : ''}</p>
                     </div>
                   ))}
                 </div>
