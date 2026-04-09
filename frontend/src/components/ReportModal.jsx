@@ -75,12 +75,11 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
 
     setSubmitting(true)
     try {
-      const response = await apiFetch('/comments', {
+      const response = await apiFetch(`/reports/${report.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          report_id: report.id,
-          content: newComment.trim()
+          comment: newComment.trim()
         })
       })
       if (response.error) throw response.error
