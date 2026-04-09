@@ -245,6 +245,11 @@ function Analytics() {
         .an-orb { position: fixed; border-radius: 50%; filter: blur(80px); animation: anFloat 8s ease-in-out infinite; pointer-events: none; }
         @keyframes anFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.05)} }
         .an-kpi-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.3) !important; box-shadow: 0 12px 40px rgba(59,130,246,0.1); }
+        @media (max-width: 640px) {
+          .analytics-bottom-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
       `}</style>
 
       <div className="an-page">
@@ -375,7 +380,7 @@ function Analytics() {
           )}
 
           {/* Row 4: AI Processing + Quick Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+          <div className="analytics-bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
 
             {/* AI Stats */}
             <ChartCard title="AI Processing" subtitle="Model coverage" index={12}>
