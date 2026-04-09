@@ -176,7 +176,7 @@ function AdminDashboard() {
   const [filters, setFilters]               = useState({ risk: '', category: '', status: '' })
   const [searchEmail, setSearchEmail]       = useState('')
   const [activeTab, setActiveTab]           = useState('reports')
-  const [pagination, setPagination]         = useState({ page:1, limit:20, total_count:0, total_pages:0, has_next:false, has_prev:false })
+  const [pagination, setPagination]         = useState({ page:1, limit:10, total_count:0, total_pages:0, has_next:false, has_prev:false })
 
   // User management
   const [users, setUsers]                   = useState([])
@@ -221,7 +221,7 @@ function AdminDashboard() {
   const fetchReports = async (page = 1, currentFilters = filters) => {
     try {
       setLoading(true); setError(null); setIsDbError(false)
-      const params = new URLSearchParams({ page, limit: 20, ai_processed: true })
+      const params = new URLSearchParams({ page, limit: 10, ai_processed: true })
       if (currentFilters.status)   params.append('status', currentFilters.status)
       if (currentFilters.category) params.append('category', currentFilters.category)
       if (currentFilters.risk)     params.append('risk_level', currentFilters.risk)

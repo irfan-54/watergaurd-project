@@ -52,7 +52,7 @@ function DepartmentDashboard() {
   const [filters, setFilters] = useState({ risk: '', status: '' })
   const [selectedReport, setSelectedReport] = useState(null)
   const [pagination, setPagination] = useState({
-    page: 1, limit: 20, total_count: 0, total_pages: 0, has_next: false, has_prev: false
+    page: 1, limit: 10, total_count: 0, total_pages: 0, has_next: false, has_prev: false
   })
 
   useEffect(() => { fetchReports(1, filters) }, [])
@@ -62,7 +62,7 @@ function DepartmentDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const params = new URLSearchParams({ page, limit: 20, ai_processed: true })
+      const params = new URLSearchParams({ page, limit: 10, ai_processed: true })
       if (currentFilters.status) params.append('status', currentFilters.status)
       if (currentFilters.risk) params.append('risk_level', currentFilters.risk)
       const data = await apiFetch(`/department/reports?${params.toString()}`)
