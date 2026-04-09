@@ -468,6 +468,11 @@ function AdminDashboard() {
         .ad-pagination-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         @media (max-width: 768px) { .ad-desktop { display: none !important; } }
         @media (min-width: 769px) { .ad-mobile { display: none !important; } }
+        @media (max-width: 640px) {
+          .admin-stat-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
       `}</style>
 
       <div className="ad-page">
@@ -510,7 +515,7 @@ function AdminDashboard() {
           </AnimatePresence>
 
           {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
+          <div className="admin-stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 28 }}>
             {STAT_CARDS.map((s, i) => (
               <motion.div key={s.label} className="ad-stat-card" variants={fadeUp} initial="hidden" animate="visible" custom={i + 1}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: `${s.accent}15`, border: `1px solid ${s.accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, color: s.accent, position: 'relative', zIndex: 1 }}>
