@@ -273,7 +273,11 @@ def rule_based_classify(text: str) -> Tuple[str, dict]:
         "house flooding", "water near house", "water near home",
         "water coming out of ground", "ground leaking",
         "tanni thanniya varudhu", "pipe porichi", "pipe udainjidhu",
-        "pipe udanju", "tanni waste", "tanni road la varudhu"
+        "pipe udanju", "tanni waste", "tanni road la varudhu",
+        # Rusty pipe detection
+        "rusty pipe", "rust pipe", "corroded pipe", "pipe corrosion", 
+        "pipe rust", "old pipe", "damaged pipe", "pipe damage",
+        "pipe deterioration", "pipe condition", "pipe broken inside"
     ]
 
     # Priority 3: Blockage (no water only)
@@ -282,6 +286,13 @@ def rule_based_classify(text: str) -> Tuple[str, dict]:
         "blocked", "clog", "clogged", "supply stopped", "supply cut",
         "water cut", "dry tap", "tap dry", "empty tap", "no tap water",
         "shortage", "water shortage", "not available", "unavailable",
+        "water supply stopped", "supply completely stopped", "water completely stopped",
+        "completely stopped", "no water supply", "supply stopped", "water stopped",
+        "stopped completely", "water not coming at all", "no water at all",
+        "water supply cut", "supply cut completely", "main supply stopped",
+        "water supply problem", "supply problem", "no supply",
+        "tanni supply poche", "tanni varala completely", "tanni vandhe stop",
+        "supply vandhe stop", "tanni supply stop",
         # Tanglish blockage
         "tanni varala", "tanni varala", "tanni illa", "tanni supply illa"
     ]

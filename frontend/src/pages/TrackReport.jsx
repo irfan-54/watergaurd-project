@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { motion } from 'framer-motion'
 import ReportStepper from '../components/ReportStepper'
+import { useAuth } from '../contexts/AuthContext'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -15,6 +16,7 @@ const fadeUp = {
 export default function TrackReport() {
   const { reportId } = useParams()
   const navigate = useNavigate()
+  const { role } = useAuth()
   const [report, setReport] = useState(null)
   const [logs, setLogs] = useState([])
   const [comments, setComments] = useState([])
@@ -584,7 +586,7 @@ export default function TrackReport() {
                 ))}
               </div>
             )}
-            {currentUser && report.user_id === currentUser.id && (
+            {(role === 'admin' || role === 'department') && (
               <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
                 <input
                   type="text"
