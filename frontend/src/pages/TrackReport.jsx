@@ -586,20 +586,18 @@ export default function TrackReport() {
                 ))}
               </div>
             )}
-            {(role === 'admin' || role === 'department') && (
-              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="tr-comment-input"
-                />
-                <button onClick={submitComment} className="tr-send-btn">
-                  Send
-                </button>
-              </div>
-            )}
+            <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="tr-comment-input"
+              />
+              <button onClick={submitComment} className="tr-send-btn">
+                Send
+              </button>
+            </div>
           </motion.div>
 
         </div>

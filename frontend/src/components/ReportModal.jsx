@@ -28,7 +28,7 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
   }
   const formatCoordinates = (lat, lng) => `${lat?.toFixed(4) || 'N/A'}, ${lng?.toFixed(4) || 'N/A'}`
 
-  const canComment = isAdmin || isDepartment
+  const canComment = true
   const isCitizen = !isAdmin && !isDepartment
 
   useEffect(() => {
@@ -490,10 +490,6 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
                     {submitting ? '...' : 'Send'}
                   </button>
                 </div>
-              )}
-
-              {isCitizen && (
-                <p className="rm-italic-hint" style={{ marginTop: 10 }}>Comments are added by department handling your report.</p>
               )}
             </div>
           </div>
