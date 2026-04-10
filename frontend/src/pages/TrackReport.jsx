@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { motion } from 'framer-motion'
 import ReportStepper from '../components/ReportStepper'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/AuthContext'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
