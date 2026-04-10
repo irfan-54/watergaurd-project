@@ -18,6 +18,7 @@ export default function TrackReport() {
   const [report, setReport] = useState(null)
   const [logs, setLogs] = useState([])
   const [comments, setComments] = useState([])
+  const [resolvedLocation, setResolvedLocation] = useState('')
   const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [lightbox, setLightbox] = useState(false)
@@ -26,6 +27,22 @@ export default function TrackReport() {
   useEffect(() => {
     fetchAll()
   }, [reportId])
+
+  useEffect(() => {
+    if (report && (!report.location || report.location === 'Location not provided')) {
+      if (report.latitude && report.longitude) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${report.latitude}&lon=${report.longitude}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.display_name) setResolvedLocation(data.display_name)
+            else setResolvedLocation(`${report.latitude?.toFixed(4)}, ${report.longitude?.toFixed(4)}`)
+          })
+          .catch(() => setResolvedLocation(`${report.latitude?.toFixed(4)}, ${report.longitude?.toFixed(4)}`))
+      }
+    } else if (report?.location) {
+      setResolvedLocation(report.location)
+    }
+  }, [report])
 
   async function fetchAll() {
     setLoading(true)
@@ -286,10 +303,8 @@ export default function TrackReport() {
             </h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-                {report.location && report.location !== 'Location not provided' 
-                  ? report.location 
-                  : `${report.latitude?.toFixed(4)}, ${report.longitude?.toFixed(4)}`}
-              </p>
+  {resolvedLocation || 'Fetching location...'}
+</p>
               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{formatDate(report.created_at)}</p>
             </div>
           </motion.div>
