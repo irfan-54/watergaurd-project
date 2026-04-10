@@ -51,6 +51,8 @@ function DepartmentDashboard() {
   const [actionLoading, setActionLoading] = useState({})
   const [filters, setFilters] = useState({ risk: '', status: '' })
   const [selectedReport, setSelectedReport] = useState(null)
+  const [resolutionModal, setResolutionModal] = useState(null)
+  const [resolutionImage, setResolutionImage] = useState(null)
   const [pagination, setPagination] = useState({
     page: 1, limit: 10, total_count: 0, total_pages: 0, has_next: false, has_prev: false
   })
@@ -84,15 +86,50 @@ function DepartmentDashboard() {
   const handleFilterChange = (key, value) => setFilters(prev => ({ ...prev, [key]: value }))
 
   const handleAction = async (reportId, action) => {
+    if (action === 'resolve') {
+      setResolutionModal(reportId)
+      return
+    }
+    
     setActionLoading(prev => ({ ...prev, [reportId]: action }))
     try {
       await apiFetch(`/reports/${reportId}/${action}`, { method: 'PUT' })
       await fetchReports()
-      if (action === 'resolve') toast.success('Marked as complete. Awaiting admin review.')
+      toast.success('Report updated successfully')
     } catch (err) {
       toast.error(`Failed to update report`)
     } finally {
       setActionLoading(prev => ({ ...prev, [reportId]: null }))
+    }
+  }
+
+  const handleResolve = async (withPhoto = false) => {
+    const reportId = resolutionModal
+    setResolutionModal(null)
+    setActionLoading(prev => ({ ...prev, [reportId]: 'resolve' }))
+    
+    try {
+      if (withPhoto && resolutionImage) {
+        // Upload with image
+        const formData = new FormData()
+        formData.append('file', resolutionImage)
+        await apiFetch(`/reports/${reportId}/resolve`, { 
+          method: 'PUT', 
+          body: formData,
+          headers: {} // Let browser set multipart boundary
+        })
+      } else {
+        // Resolve without photo
+        await apiFetch(`/reports/${reportId}/resolve`, { method: 'PUT' })
+      }
+      
+      await fetchReports()
+      toast.success('Marked as complete. Awaiting admin review.')
+    } catch (err) {
+      toast.error(`Failed to resolve report`)
+    } finally {
+      setActionLoading(prev => ({ ...prev, [reportId]: null }))
+      setResolutionImage(null)
     }
   }
 
@@ -362,6 +399,200 @@ function DepartmentDashboard() {
           onClose={() => setSelectedReport(null)}
           onResolve={(id) => { handleAction(id, 'resolve'); setSelectedReport(null) }}
         />
+      )}
+
+      {/* Resolution Modal */}
+      {resolutionModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={() => setResolutionModal(null)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            style={{
+              background: 'rgba(15,23,42,0.95)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 16,
+              padding: 24,
+              width: '90%',
+              maxWidth: 480,
+              boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ color: 'white', fontSize: 20, fontWeight: 600, marginBottom: 16 }}>
+              Mark as Resolved
+            </h3>
+            
+            <div style={{
+              background: 'rgba(34,197,94,0.1)',
+              border: '1px solid rgba(34,197,94,0.25)',
+              borderRadius: 12,
+              padding: '14px 18px',
+              marginBottom: 20
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#4ADE80', marginBottom: 4 }}>
+                Upload a photo showing the issue has been resolved (optional)
+              </p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+                This helps verify that the water issue has been properly addressed.
+              </p>
+            </div>
+
+            {/* File Upload Area */}
+            <div
+              style={{
+                border: '2px dashed rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                padding: 32,
+                textAlign: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                background: resolutionImage ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)',
+                borderColor: resolutionImage ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.2)',
+                marginBottom: 20
+              }}
+              onClick={() => document.getElementById('resolution-file-input').click()}
+              onDragOver={(e) => {
+                e.preventDefault()
+                e.currentTarget.style.borderColor = 'rgba(59,130,246,0.6)'
+                e.currentTarget.style.background = 'rgba(59,130,246,0.05)'
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault()
+                e.currentTarget.style.borderColor = resolutionImage ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.2)'
+                e.currentTarget.style.background = resolutionImage ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)'
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                const file = e.dataTransfer.files[0]
+                if (file && file.type.startsWith('image/')) {
+                  setResolutionImage(file)
+                }
+                e.currentTarget.style.borderColor = resolutionImage ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.2)'
+                e.currentTarget.style.background = resolutionImage ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)'
+              }}
+            >
+              <input
+                id="resolution-file-input"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  if (file) setResolutionImage(file)
+                }}
+              />
+              
+              {resolutionImage ? (
+                <div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>#</div>
+                  <p style={{ color: '#60A5FA', fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
+                    {resolutionImage.name}
+                  </p>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
+                    Click to change or drag a new image
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>#</div>
+                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
+                    Click to upload or drag & drop
+                  </p>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
+                    JPG, PNG, WEBP (max 10MB)
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <button
+                onClick={() => handleResolve(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  background: 'rgba(107,114,128,0.2)',
+                  border: '1px solid rgba(107,114,128,0.3)',
+                  borderRadius: 8,
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(107,114,128,0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(107,114,128,0.4)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(107,114,128,0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(107,114,128,0.3)'
+                }}
+              >
+                Resolve Without Photo
+              </button>
+              
+              <button
+                onClick={() => handleResolve(true)}
+                disabled={!resolutionImage}
+                style={{
+                  flex: 1,
+                  padding: '12px 20px',
+                  background: resolutionImage ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.1)',
+                  border: '1px solid rgba(34,197,94,0.4)',
+                  borderRadius: 8,
+                  color: resolutionImage ? '#4ADE80' : 'rgba(74,222,128,0.5)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: resolutionImage ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  if (resolutionImage) {
+                    e.currentTarget.style.background = 'rgba(34,197,94,0.3)'
+                    e.currentTarget.style.borderColor = 'rgba(34,197,94,0.5)'
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = resolutionImage ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.1)'
+                  e.currentTarget.style.borderColor = 'rgba(34,197,94,0.4)'
+                }}
+              >
+                Resolve With Photo
+              </button>
+            </div>
+
+            {/* Cancel Button */}
+            <button
+              onClick={() => {
+                setResolutionModal(null)
+                setResolutionImage(null)
+              }}
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: 13,
+                cursor: 'pointer',
+                marginTop: 12,
+                transition: 'color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+              onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </div>
       )}
     </motion.div>
   )

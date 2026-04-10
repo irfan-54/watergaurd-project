@@ -561,7 +561,7 @@ async def add_comment(report_id: str, request: CommentRequest, user = Depends(ge
         return {"status": "error", "message": str(e)}
 
 @app.put('/reports/{report_id}/resolve')
-async def resolve_report(report_id: str, user = Depends(get_current_user)):
+async def resolve_report(report_id: str, file: Optional[UploadFile] = File(None), user = Depends(get_current_user)):
     if user.get("role") not in ["admin", "department"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     if supabase is None:
@@ -575,6 +575,38 @@ async def resolve_report(report_id: str, user = Depends(get_current_user)):
             "status": "resolved",
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
+        
+        # Handle resolution image upload if provided
+        if file and file.filename:
+            try:
+                # Read file content
+                file_content = await file.read()
+                file_ext = file.filename.split('.')[-1].lower()
+                if file_ext not in ['jpg', 'jpeg', 'png', 'webp']:
+                    file_ext = 'jpg'
+                
+                # Generate unique filename for resolution image
+                unique_filename = f"resolution_{report_id}_{uuid4()}.{file_ext}"
+                storage_url = f"{SUPABASE_URL}/storage/v1/object/report-images/{unique_filename}"
+                
+                # Upload to Supabase storage
+                headers = {
+                    "Authorization": f"Bearer {SUPABASE_KEY}",
+                    "apikey": SUPABASE_KEY,
+                    "Content-Type": file.content_type
+                }
+                upload_response = requests.post(storage_url, headers=headers, data=file_content)
+                if upload_response.status_code not in [200, 201]:
+                    raise Exception(f"Storage upload failed: {upload_response.text}")
+                
+                # Save public URL to database
+                public_url = f"{SUPABASE_URL}/storage/v1/object/public/report-images/{unique_filename}"
+                update_data["resolution_image_url"] = public_url
+                
+            except Exception as e:
+                print(f"[RESOLUTION IMAGE ERROR] Failed to upload resolution image: {e}")
+                # Continue with resolution even if image upload fails
+        
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
         if len(result.data) == 0:
             return {"message": "Report not found", "status": "error"}

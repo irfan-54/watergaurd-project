@@ -389,6 +389,64 @@ export default function ReportModal({ report, onClose, isAdmin = false, isDepart
               </div>
             </div>
 
+            {/* Image Evidence Section */}
+            {(report.image_url || report.resolution_image_url) && (
+              <div className="rm-divider" />
+            )}
+            
+            {report.image_url && (
+              <div style={{ marginBottom: 16 }}>
+                <div className="rm-section-label" style={{ marginBottom: 8 }}>
+                  {report.resolution_image_url ? 'Before - Original Issue' : 'Evidence Image'}
+                </div>
+                <img
+                  src={report.image_url}
+                  alt={report.resolution_image_url ? 'Before - Original issue' : 'Report evidence'}
+                  style={{
+                    width: '100%',
+                    maxHeight: 200,
+                    objectFit: 'cover',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                    border: '1px solid rgba(255,255,255,0.08)'
+                  }}
+                  onClick={() => window.open(report.image_url, '_blank')}
+                />
+              </div>
+            )}
+
+            {report.resolution_image_url && (
+              <div style={{ marginBottom: 16 }}>
+                <div className="rm-section-label" style={{ marginBottom: 8 }}>
+                  <span style={{ 
+                    background: 'rgba(34,197,94,0.2)', 
+                    color: '#4ADE80', 
+                    padding: '2px 6px', 
+                    borderRadius: 3, 
+                    fontSize: 9, 
+                    fontWeight: 600,
+                    marginRight: 6
+                  }}>
+                    AFTER
+                  </span>
+                  Resolution Evidence
+                </div>
+                <img
+                  src={report.resolution_image_url}
+                  alt="After - Resolution evidence"
+                  style={{
+                    width: '100%',
+                    maxHeight: 200,
+                    objectFit: 'cover',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                    border: '1px solid rgba(34,197,94,0.25)'
+                  }}
+                  onClick={() => window.open(report.resolution_image_url, '_blank')}
+                />
+              </div>
+            )}
+
             {/* Comments Section */}
             <div className="rm-divider" />
             <div>

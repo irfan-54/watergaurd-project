@@ -258,7 +258,22 @@ def rule_based_classify(text: str) -> Tuple[str, dict]:
         "gush", "gushing", "seeping", "seep", "pooling", "pool of water",
         "water spill", "flooding", "flood", "water on road", "water on street",
         # Tanglish leakage
-        "tanni odudhu", "tanni veliya varudhu", "tanni leak", "pipe udanjidhu"
+        "tanni odudhu", "tanni veliya varudhu", "tanni leak", "pipe udanjidhu",
+        # Additional leakage keywords
+        "pipe got broken", "pipe is broken", "broken pipe", "pipe damage",
+        "pipe damaged", "pipe cracked", "cracked pipe", "pipe burst out",
+        "water pooling", "water pool", "pool near", "pool of water near",
+        "water coming", "water flowing out", "flowing out", "water outside",
+        "pipe problem", "pipe issue", "pipe fault", "main pipe",
+        "pipeline broken", "pipeline burst", "pipeline leak",
+        "water wasting", "waste water", "water wasted",
+        "pipe leaking", "pipe dripping", "pipe overflow",
+        "water on ground", "ground water leaking", "water in street",
+        "water in road", "street flooding", "road flooding",
+        "house flooding", "water near house", "water near home",
+        "water coming out of ground", "ground leaking",
+        "tanni thanniya varudhu", "pipe porichi", "pipe udainjidhu",
+        "pipe udanju", "tanni waste", "tanni road la varudhu"
     ]
 
     # Priority 3: Blockage (no water only)
