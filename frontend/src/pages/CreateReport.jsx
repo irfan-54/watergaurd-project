@@ -220,7 +220,7 @@ function CreateReport() {
       formData.append("user_id", user?.id || "citizen_demo")
       formData.append("latitude", position.lat)
       formData.append("longitude", position.lng)
-      formData.append("location", locationName || "Location not provided")
+      formData.append("location", locationName || `${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`)
       if (imageFile) formData.append("image", imageFile)
 
       const data = await apiFetch('/reports', { method: 'POST', body: formData })

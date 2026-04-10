@@ -285,7 +285,11 @@ export default function TrackReport() {
               {report.category}
             </h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>📍 {report.location}</p>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+                {report.location && report.location !== 'Location not provided' 
+                  ? report.location 
+                  : `${report.latitude?.toFixed(4)}, ${report.longitude?.toFixed(4)}`}
+              </p>
               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{formatDate(report.created_at)}</p>
             </div>
           </motion.div>
