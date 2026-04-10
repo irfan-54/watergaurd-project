@@ -20,12 +20,18 @@ const RISK_BADGE = {
   LOW:    { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
 }
 const STATUS_BADGE = {
-  submitted:        { bg: 'rgba(245,158,11,0.12)', color: '#FBBF24', border: 'rgba(245,158,11,0.25)' },
-  in_progress:     { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: 'rgba(59,130,246,0.25)' },
-  assigned:         { bg: 'rgba(99,102,241,0.12)', color: '#A78BFA', border: 'rgba(99,102,241,0.25)' },
-  awaiting_review: { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: 'rgba(167,139,250,0.25)' },
-  resolved:         { bg: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: 'rgba(34,197,94,0.25)' },
-  rejected:         { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
+  submitted:        { bg: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: 'rgba(59,130,246,0.25)' },
+  PENDING:          { bg: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: 'rgba(59,130,246,0.25)' },
+  pending:          { bg: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: 'rgba(59,130,246,0.25)' },
+  assigned:         { bg: 'rgba(139,92,246,0.12)', color: '#8B5CF6', border: 'rgba(139,92,246,0.25)' },
+  ASSIGNED:         { bg: 'rgba(139,92,246,0.12)', color: '#8B5CF6', border: 'rgba(139,92,246,0.25)' },
+  in_progress:     { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', border: 'rgba(245,158,11,0.25)' },
+  IN_PROGRESS:     { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', border: 'rgba(245,158,11,0.25)' },
+  verified:         { bg: 'rgba(6,182,212,0.12)', color: '#06B6D4', border: 'rgba(6,182,212,0.25)' },
+  resolved:         { bg: 'rgba(34,197,94,0.12)', color: '#22C55E', border: 'rgba(34,197,94,0.25)' },
+  RESOLVED:        { bg: 'rgba(34,197,94,0.12)', color: '#22C55E', border: 'rgba(34,197,94,0.25)' },
+  rejected:         { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', border: 'rgba(239,68,68,0.25)' },
+  REJECTED:         { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', border: 'rgba(239,68,68,0.25)' },
 }
 const CATEGORY_BADGE = {
   contamination: { bg: 'rgba(239,68,68,0.12)', color: '#F87171', border: 'rgba(239,68,68,0.25)' },
@@ -87,6 +93,11 @@ function DepartmentDashboard() {
 
   const handleAction = async (reportId, action) => {
     if (action === 'resolve') {
+      const report = reports.find(r => r.id === reportId)
+      // Don't allow resolution for already resolved or rejected reports
+      if (report && ['resolved', 'RESOLVED', 'rejected', 'REJECTED'].includes(report.status)) {
+        return
+      }
       setResolutionModal(reportId)
       return
     }
@@ -135,12 +146,26 @@ function DepartmentDashboard() {
 
   const getStatusDisplay = (status) => {
     switch (status) {
-      case 'submitted': return 'Submitted'
-      case 'in_progress': return 'In Progress'
-      case 'assigned': return 'Assigned'
-      case 'resolved': return 'Resolved'
-      case 'rejected': return 'Rejected'
-      default: return status
+      case 'submitted':
+      case 'PENDING':
+      case 'pending': 
+        return 'Submitted'
+      case 'assigned':
+      case 'ASSIGNED': 
+        return 'Assigned'
+      case 'in_progress':
+      case 'IN_PROGRESS': 
+        return 'In Progress'
+      case 'verified': 
+        return 'Verified'
+      case 'resolved':
+      case 'RESOLVED': 
+        return 'Resolved'
+      case 'rejected':
+      case 'REJECTED': 
+        return 'Rejected'
+      default: 
+        return status
     }
   }
 
@@ -271,9 +296,9 @@ function DepartmentDashboard() {
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.4)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Status</label>
                 <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="dd-select">
                   <option value="">All Statuses</option>
-                  <option value="submitted">Submitted</option>
                   <option value="assigned">Assigned</option>
                   <option value="in_progress">In Progress</option>
+                  <option value="verified">Verified</option>
                   <option value="resolved">Resolved</option>
                   <option value="rejected">Rejected</option>
                 </select>
@@ -311,12 +336,12 @@ function DepartmentDashboard() {
                         <span>{new Date(report.created_at).toLocaleDateString()}</span>
                       </p>
                       <div style={{ display: 'flex', gap: 8 }} onClick={(e) => e.stopPropagation()}>
-                        {report.status === 'in_progress' && (
+                        {(['assigned', 'ASSIGNED', 'in_progress', 'IN_PROGRESS', 'verified'].includes(report.status)) && (
                           <button onClick={() => handleAction(report.id, 'resolve')} disabled={!!actionLoading[report.id]} className="dd-btn-resolve" style={{ flex: 1 }}>
                             {actionLoading[report.id] === 'resolve' ? 'Updating...' : 'Mark Complete'}
                           </button>
                         )}
-                        {report.status === 'resolved' && (
+                        {(['resolved', 'RESOLVED', 'rejected', 'REJECTED'].includes(report.status)) && (
                           <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>Done</span>
                         )}
                       </div>
@@ -355,12 +380,12 @@ function DepartmentDashboard() {
                           <td style={{ padding: '14px 16px', fontSize: 12, color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>{new Date(report.created_at).toLocaleDateString()}</td>
                           <td style={{ padding: '14px 16px' }}>
                             <div style={{ display: 'flex', gap: 6 }} onClick={(e) => e.stopPropagation()}>
-                              {report.status === 'in_progress' && (
+                              {(['assigned', 'ASSIGNED', 'in_progress', 'IN_PROGRESS', 'verified'].includes(report.status)) && (
                                 <button onClick={() => handleAction(report.id, 'resolve')} disabled={!!actionLoading[report.id]} className="dd-btn-resolve">
                                   {actionLoading[report.id] === 'resolve' ? 'Updating...' : 'Mark Complete'}
                                 </button>
                               )}
-                              {report.status === 'resolved' && (
+                              {(['resolved', 'RESOLVED', 'rejected', 'REJECTED'].includes(report.status)) && (
                                 <span style={{ fontSize: 12, color: '#4ADE80', fontWeight: 600 }}>✓ Done</span>
                               )}
                             </div>
