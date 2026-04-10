@@ -459,6 +459,11 @@ async def start_work_report(report_id: str, user = Depends(get_current_user)):
         
         if current_status in ["resolved", "RESOLVED", "rejected", "REJECTED"]:
             raise HTTPException(status_code=400, detail="Cannot start work on a resolved or rejected report")
+        
+        # Allow starting work from submitted, PENDING, pending, assigned, ASSIGNED, and in_progress statuses
+        if current_status not in ["submitted", "PENDING", "pending", "assigned", "ASSIGNED", "in_progress", "IN_PROGRESS"]:
+            print(f"[START WORK] WARNING: Starting work on unexpected status '{current_status}'")
+        
         category = report_result.data[0]["category"]
         print(f"[START WORK] category: {category}")
         

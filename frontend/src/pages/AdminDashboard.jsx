@@ -367,29 +367,47 @@ function AdminDashboard() {
   }
 
   const handleStartWork = async id => {
-    const report = reports.find(r => r.id === id); if (!report) return
-    if (report.category === 'other') { setAssignModal(id); return }
-    if (startingWorkIds.has(id)) return
-    const categoryDeptMap = {
-      leakage:       'water_dept',
-      contamination: 'health_dept',
-      blockage:      'pwd',
-    }
-    const dept = categoryDeptMap[report.category]
-    try {
-      setStartingWorkIds(prev => new Set([...prev, id]))
-      if (dept) {
-        const fd = new FormData(); fd.append('department', dept)
-        await apiFetch(`/reports/${id}/assign`, { method: 'PUT', body: fd })
-        await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
-      } else {
-        await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
-      }
-      await fetchReports()
-      toast.success('Work started successfully')
-    } catch (err) { setError('Start work failed: ' + err.message) }
-    finally { setStartingWorkIds(prev => { const s = new Set(prev); s.delete(id); return s }) }
+  const report = reports.find(r => r.id === id)
+  if (!report) return
+  
+  // If already in progress, do nothing
+  if (['in_progress', 'IN_PROGRESS'].includes(report.status)) return
+  
+  // If category is 'other' and not yet assigned, show manual assign modal
+  if (report.category === 'other' && !['assigned', 'ASSIGNED'].includes(report.status)) {
+    setAssignModal(id)
+    return
   }
+  
+  if (startingWorkIds.has(id)) return
+  
+  const categoryDeptMap = {
+    leakage: 'water_dept',
+    contamination: 'health_dept',
+    blockage: 'pwd',
+  }
+  const dept = categoryDeptMap[report.category]
+  
+  try {
+    setStartingWorkIds(prev => new Set([...prev, id]))
+    
+    // Only call assign if not already assigned
+    if (dept && !['assigned', 'ASSIGNED'].includes(report.status)) {
+      const fd = new FormData()
+      fd.append('department', dept)
+      await apiFetch(`/reports/${id}/assign`, { method: 'PUT', body: fd })
+    }
+    
+    // Always call start
+    await apiFetch(`/reports/${id}/start`, { method: 'PUT' })
+    await fetchReports()
+    toast.success('Work started successfully')
+  } catch (err) {
+    setError('Start work failed: ' + err.message)
+  } finally {
+    setStartingWorkIds(prev => { const s = new Set(prev); s.delete(id); return s })
+  }
+}
 
   const handleAssign = async (id, dept) => {
     setAssignModal(null)
