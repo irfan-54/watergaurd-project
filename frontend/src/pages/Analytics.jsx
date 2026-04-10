@@ -134,7 +134,7 @@ function Analytics() {
   const fetchReports = async () => {
     try {
       setLoading(true); setError(null)
-      const data = await apiFetch('/reports?ai_processed=true')
+      const data = await apiFetch('/reports?ai_processed=true&limit=1000')
       if (data.status === 'success') setReports(data.data || [])
       else setError(data.message || 'Failed to fetch reports')
     } catch { setError('Failed to connect to server') }
@@ -142,9 +142,9 @@ function Analytics() {
   }
 
   const totalReports = reports.length
-  const openReports = reports.filter(r => r.status === 'OPEN').length
-  const inProgressReports = reports.filter(r => r.status === 'IN_PROGRESS').length
-  const resolvedReports = reports.filter(r => r.status === 'RESOLVED').length
+  const openReports = reports.filter(r => ['submitted', 'PENDING', 'pending'].includes(r.status)).length
+  const inProgressReports = reports.filter(r => ['in_progress', 'IN_PROGRESS', 'assigned', 'ASSIGNED'].includes(r.status)).length
+  const resolvedReports = reports.filter(r => ['resolved', 'RESOLVED'].includes(r.status)).length
   const highRiskReports = reports.filter(r => r.risk_level === 'HIGH').length
   const resolutionRate = totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0
 

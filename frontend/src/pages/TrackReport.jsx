@@ -356,135 +356,195 @@ export default function TrackReport() {
           {/* SECTION 5: IMAGE */}
           <motion.div className="tr-glass" variants={fadeUp} initial="hidden" animate="visible" custom={5}>
             <h2 className="tr-section-title">Image Evidence</h2>
-            {report.image_url ? (
+            {(!report.image_url && !report.resolution_image_url) ? (
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No image attached to this report.</p>
+            ) : report.image_url && !report.resolution_image_url ? (
+              // Show only original image (no resolution image)
               <>
-                {report.resolution_image_url ? (
-                  // Show both before and after images
-                  <div>
-                    {/* Before Image */}
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ 
-                        fontSize: 12, 
-                        fontWeight: 600, 
-                        color: 'rgba(255,255,255,0.7)', 
-                        marginBottom: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6
-                      }}>
-                        <span style={{ 
-                          background: 'rgba(245,158,11,0.2)', 
-                          color: '#FBBF24', 
-                          padding: '2px 8px', 
-                          borderRadius: 4, 
-                          fontSize: 10, 
-                          fontWeight: 600 
-                        }}>
-                          BEFORE
-                        </span>
-                        Original Issue
-                      </div>
-                      <img
-                        src={report.image_url}
-                        alt="Before - Report evidence"
-                        style={{ 
-                          width: '100%', 
-                          maxHeight: 240, 
-                          objectFit: 'cover', 
-                          borderRadius: 12, 
-                          cursor: 'pointer', 
-                          border: '1px solid rgba(255,255,255,0.08)' 
-                        }}
-                        onClick={() => setLightbox('before')}
-                      />
-                    </div>
-                    
-                    {/* After Image */}
-                    <div>
-                      <div style={{ 
-                        fontSize: 12, 
-                        fontWeight: 600, 
-                        color: 'rgba(255,255,255,0.7)', 
-                        marginBottom: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6
-                      }}>
-                        <span style={{ 
-                          background: 'rgba(34,197,94,0.2)', 
-                          color: '#4ADE80', 
-                          padding: '2px 8px', 
-                          borderRadius: 4, 
-                          fontSize: 10, 
-                          fontWeight: 600 
-                        }}>
-                          AFTER
-                        </span>
-                        Resolved
-                        <span style={{ color: '#4ADE80', fontSize: 14 }}>#</span>
-                      </div>
-                      <img
-                        src={report.resolution_image_url}
-                        alt="After - Resolution evidence"
-                        style={{ 
-                          width: '100%', 
-                          maxHeight: 240, 
-                          objectFit: 'cover', 
-                          borderRadius: 12, 
-                          cursor: 'pointer', 
-                          border: '1px solid rgba(34,197,94,0.25)' 
-                        }}
-                        onClick={() => setLightbox('after')}
-                      />
-                    </div>
-                    
-                    {/* Lightbox for both images */}
-                    {lightbox && (
-                      <div className="tr-lightbox" onClick={() => setLightbox(null)}>
-                        <img
-                          src={lightbox === 'before' ? report.image_url : report.resolution_image_url}
-                          alt={`Full size ${lightbox === 'before' ? 'before' : 'after'}`}
-                          style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
-                        />
-                        <div style={{
-                          position: 'absolute',
-                          top: 20,
-                          left: 20,
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          padding: '8px 12px',
-                          borderRadius: 6,
-                          fontSize: 12,
-                          fontWeight: 600
-                        }}>
-                          {lightbox === 'before' ? 'BEFORE - Original Issue' : 'AFTER - Resolved'}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // Show only original image (no resolution image)
-                  <>
+                <img
+                  src={report.image_url}
+                  alt="Report evidence"
+                  style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 12, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}
+                  onClick={() => setLightbox('single')}
+                />
+                {lightbox && (
+                  <div className="tr-lightbox" onClick={() => setLightbox(null)}>
                     <img
                       src={report.image_url}
-                      alt="Report evidence"
-                      style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 12, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}
-                      onClick={() => setLightbox('single')}
+                      alt="Full size"
+                      style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
                     />
-                    {lightbox && (
-                      <div className="tr-lightbox" onClick={() => setLightbox(null)}>
-                        <img
-                          src={report.image_url}
-                          alt="Full size"
-                          style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
-                        />
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
               </>
+            ) : !report.image_url && report.resolution_image_url ? (
+              // Show only resolution image (no original image)
+              <div>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ 
+                    fontSize: 12, 
+                    fontWeight: 600, 
+                    color: 'rgba(255,255,255,0.7)', 
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    <span style={{ 
+                      background: 'rgba(34,197,94,0.2)', 
+                      color: '#4ADE80', 
+                      padding: '2px 8px', 
+                      borderRadius: 4, 
+                      fontSize: 10, 
+                      fontWeight: 600 
+                    }}>
+                      AFTER
+                    </span>
+                    Resolution Evidence
+                  </div>
+                  <img
+                    src={report.resolution_image_url}
+                    alt="Resolution evidence"
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: 240, 
+                      objectFit: 'cover', 
+                      borderRadius: 12, 
+                      cursor: 'pointer', 
+                      border: '1px solid rgba(34,197,94,0.25)' 
+                    }}
+                    onClick={() => setLightbox('after')}
+                  />
+                </div>
+                
+                {/* Lightbox for resolution image */}
+                {lightbox && (
+                  <div className="tr-lightbox" onClick={() => setLightbox(null)}>
+                    <img
+                      src={report.resolution_image_url}
+                      alt="Full size resolution"
+                      style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      top: 20,
+                      left: 20,
+                      background: 'rgba(0,0,0,0.7)',
+                      color: 'white',
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontWeight: 600
+                    }}>
+                      AFTER - Resolved
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>No image attached to this report.</p>
+              // Show both before and after images
+              <div>
+                {/* Before Image */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ 
+                    fontSize: 12, 
+                    fontWeight: 600, 
+                    color: 'rgba(255,255,255,0.7)', 
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    <span style={{ 
+                      background: 'rgba(245,158,11,0.2)', 
+                      color: '#FBBF24', 
+                      padding: '2px 8px', 
+                      borderRadius: 4, 
+                      fontSize: 10, 
+                      fontWeight: 600 
+                    }}>
+                      BEFORE
+                    </span>
+                    Original Issue
+                  </div>
+                  <img
+                    src={report.image_url}
+                    alt="Before - Report evidence"
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: 240, 
+                      objectFit: 'cover', 
+                      borderRadius: 12, 
+                      cursor: 'pointer', 
+                      border: '1px solid rgba(255,255,255,0.08)' 
+                    }}
+                    onClick={() => setLightbox('before')}
+                  />
+                </div>
+                
+                {/* After Image */}
+                <div>
+                  <div style={{ 
+                    fontSize: 12, 
+                    fontWeight: 600, 
+                    color: 'rgba(255,255,255,0.7)', 
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    <span style={{ 
+                      background: 'rgba(34,197,94,0.2)', 
+                      color: '#4ADE80', 
+                      padding: '2px 8px', 
+                      borderRadius: 4, 
+                      fontSize: 10, 
+                      fontWeight: 600 
+                    }}>
+                      AFTER
+                    </span>
+                    Resolved
+                    <span style={{ color: '#4ADE80', fontSize: 14 }}>✓</span>
+                  </div>
+                  <img
+                    src={report.resolution_image_url}
+                    alt="After - Resolution evidence"
+                    style={{ 
+                      width: '100%', 
+                      maxHeight: 240, 
+                      objectFit: 'cover', 
+                      borderRadius: 12, 
+                      cursor: 'pointer', 
+                      border: '1px solid rgba(34,197,94,0.25)' 
+                    }}
+                    onClick={() => setLightbox('after')}
+                  />
+                </div>
+                
+                {/* Lightbox for both images */}
+                {lightbox && (
+                  <div className="tr-lightbox" onClick={() => setLightbox(null)}>
+                    <img
+                      src={lightbox === 'before' ? report.image_url : report.resolution_image_url}
+                      alt={`Full size ${lightbox === 'before' ? 'before' : 'after'}`}
+                      style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: 12 }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      top: 20,
+                      left: 20,
+                      background: 'rgba(0,0,0,0.7)',
+                      color: 'white',
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontWeight: 600
+                    }}>
+                      {lightbox === 'before' ? 'BEFORE - Original Issue' : 'AFTER - Resolved'}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </motion.div>
 

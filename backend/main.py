@@ -579,33 +579,29 @@ async def resolve_report(report_id: str, file: Optional[UploadFile] = File(None)
         # Handle resolution image upload if provided
         if file and file.filename:
             try:
-                # Read file content
                 file_content = await file.read()
                 file_ext = file.filename.split('.')[-1].lower()
                 if file_ext not in ['jpg', 'jpeg', 'png', 'webp']:
                     file_ext = 'jpg'
                 
-                # Generate unique filename for resolution image
                 unique_filename = f"resolution_{report_id}_{uuid4()}.{file_ext}"
-                storage_url = f"{SUPABASE_URL}/storage/v1/object/report-images/{unique_filename}"
                 
-                # Upload to Supabase storage
-                headers = {
-                    "Authorization": f"Bearer {SUPABASE_KEY}",
-                    "apikey": SUPABASE_KEY,
-                    "Content-Type": file.content_type
-                }
-                upload_response = requests.post(storage_url, headers=headers, data=file_content)
-                if upload_response.status_code not in [200, 201]:
-                    raise Exception(f"Storage upload failed: {upload_response.text}")
+                # Use Supabase client storage upload
+                upload_result = supabase.storage.from_("report-images").upload(
+                    path=unique_filename,
+                    file=file_content,
+                    file_options={"content-type": file.content_type or "image/jpeg"}
+                )
                 
-                # Save public URL to database
+                print(f"[RESOLUTION UPLOAD] upload_result: {upload_result}")
+                
                 public_url = f"{SUPABASE_URL}/storage/v1/object/public/report-images/{unique_filename}"
                 update_data["resolution_image_url"] = public_url
+                print(f"[RESOLUTION UPLOAD] SUCCESS: {public_url}")
                 
             except Exception as e:
-                print(f"[RESOLUTION IMAGE ERROR] Failed to upload resolution image: {e}")
-                # Continue with resolution even if image upload fails
+                print(f"[RESOLUTION UPLOAD ERROR] {str(e)}")
+                print(f"[RESOLUTION UPLOAD ERROR TYPE] {type(e)}")
         
         result = supabase.table("reports").update(update_data).eq("id", report_id).execute()
         if len(result.data) == 0:
