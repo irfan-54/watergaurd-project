@@ -1,298 +1,299 @@
-# 🌊 WaterGuard AI System
+<div align="center">
 
-**Intelligent Water Issue Detection and Management Platform**
+# 🌊 WaterGuard
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![React](https://img.shields.io/badge/react-18+-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
+**AI-powered civic water issue reporting — multilingual, real-time, role-based.**
 
----
+[![🌐 Live App](https://img.shields.io/badge/🌐_Live_App-Visit-2563EB?style=for-the-badge&logo=vercel&logoColor=white)](https://watergaurd-project.vercel.app)
 
-## 🎯 About
+<br/>
 
-WaterGuard is an AI-powered platform that revolutionizes how citizens report and municipalities manage water-related issues. By leveraging advanced machine learning models, the system automatically classifies water contamination, leakage, and drainage blockage reports with multilingual support and real-time risk assessment.
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Transformers-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/irfan-54/waterguard-xlmr)
+[![Vercel](https://img.shields.io/badge/Vercel-Deploy-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-8B5CF6?style=for-the-badge)](LICENSE)
 
-### 🌍 Problem Statement
-Traditional water issue reporting systems suffer from:
-- **Manual triage and classification delays**
-- **Language barriers in diverse communities**
-- **Inconsistent risk assessment**
-- **Lack of intelligent prioritization**
+</div>
 
-### 💡 Solution
-WaterGuard provides:
-- **Instant AI-powered classification** (87.3% accuracy)
-- **Multilingual support** (English and Tamil)
-- **Dual-modal analysis** (text + image verification)
-- **Automated risk scoring** (60-95% confidence range)
-- **Real-time analytics** for administrators
+<hr/>
 
----
+## ✨ **Features**
 
-## ✨ Key Features
+### 👤 Citizen
+- **Report issues** with description, geolocation (Leaflet map), and optional photo upload
+- **Multilingual input** — Tamil Unicode, Tanglish, and English in free-text descriptions
+- **Real-time AI triage** — background XLM-RoBERTa + CLIP analysis after submission
+- **Track reports** via timeline, status, and risk level on `/track/:reportId`
+- **Email notifications** on submit, assign, resolve, and reject (Resend)
+- **Google OAuth** or email/password via Supabase Auth
 
-### 🤖 AI-Powered Analysis
-- **Text Classification**: Fine-tuned XLM-RoBERTa model for issue categorization
-- **Image Verification**: CLIP-based visual content validation
-- **Multilingual Support**: English and Tamil language processing
-- **Risk Assessment**: Automated confidence scoring for prioritization
-- **Background Processing**: Non-blocking AI analysis with caching
+### 🛡️ Admin
+- **Central dashboard** — filter, search, and manage all municipal reports
+- **Bulk assign** reports to departments by AI category
+- **Analytics** — category breakdowns, trends, and heat maps (Recharts + Leaflet)
+- **Resolve / reject** workflows with audit trail in `activity_logs`
+- **Live stats** — total, active, resolved, high-risk counts from `/stats`
 
-### 👥 Citizen Portal
-- **Intuitive Reporting**: Easy-to-use interface with map integration
-- **Real-time Tracking**: Monitor report status and progress
-- **Multilingual Interface**: Accessible in multiple languages
-- **Mobile Responsive**: Optimized for all devices and screen sizes
+### 🏢 Department
+- **Scoped inbox** — only reports matching department category (water / PWD / health)
+- **Start work** — move reports from submitted → in progress
+- **Resolve with proof** — optional resolution image upload to Supabase Storage
+- **Comments** — threaded discussion per report
 
-### 🛡️ Admin Dashboard
-- **Centralized Management**: View and manage all reports
-- **Advanced Filtering**: Filter by risk, category, status
-- **Bulk Operations**: Assign multiple reports to departments
-- **Analytics Dashboard**: Real-time statistics and insights
-- **Export Capabilities**: CSV export with custom filters
+<hr/>
 
-### 🔧 Technical Excellence
-- **Microservices Architecture**: Scalable backend design
-- **Background Processing**: Asynchronous AI analysis
-- **Error Handling**: Robust fallback mechanisms
-- **API Documentation**: Comprehensive OpenAPI specs
+## 🏗️ **System Architecture**
 
----
+```mermaid
+flowchart LR
+  subgraph Client["Frontend · Vercel"]
+    UI["React 19 + Vite"]
+    Auth["Supabase Auth Client"]
+  end
 
-## 🏗️ Architecture
+  subgraph API["Backend · Hugging Face Spaces"]
+    FA["FastAPI + Uvicorn :7860"]
+    NLP["XLM-RoBERTa\nirfan-54/waterguard-xlmr"]
+    CLIP["CLIP\nopenai/clip-vit-base-patch32"]
+    FA --> NLP
+    FA --> CLIP
+  end
 
-### 🔄 AI Pipeline
+  subgraph Data["Supabase Cloud"]
+    PG[("PostgreSQL\nreports · profiles · comments")]
+    ST["Storage\nreport-images"]
+  end
+
+  subgraph Notify["Resend"]
+    EM["Transactional Email"]
+  end
+
+  UI -->|REST + JWT| FA
+  Auth -->|session| UI
+  FA --> PG
+  FA --> ST
+  FA --> EM
+  UI -->|direct read/write| PG
 ```
-Report Submission
-       ↓
-   Text Analysis (XLM-RoBERTa)
-       ↓
-  Image Verification (CLIP)
-       ↓
-   Confidence Scoring
-       ↓
-  Risk Level Assignment
-       ↓
-   Admin Dashboard
-```
 
-### 📊 Model Performance
-- **Training Dataset**: 20,000+ multilingual samples
-- **Categories**: Leakage, Contamination, Blockage, Other
-- **Accuracy**: 87.3% classification accuracy
-- **Inference Time**: <2 seconds per report
-- **Languages**: English, Tamil (with Tanglish detection)
+**End-to-end flow:** Citizen signs in → creates report (`POST /reports`) → image stored in Supabase → row inserted with `ai_processed: false` → FastAPI runs async `run_ai_analysis` (text + image) → updates category, confidence, risk → admin/department acts via role-gated routes → Resend emails citizen at each state change.
 
----
+<hr/>
 
-## 🛠️ Tech Stack
+## 🧠 **AI Model — XLM-RoBERTa**
 
-### Frontend
-- **React 18+** - Modern UI framework
-- **Vite** - Lightning-fast build tool
-- **TailwindCSS** - Utility-first CSS framework
-- **Framer Motion** - Smooth animations
-- **React Router** - Client-side routing
-- **Supabase Client** - Real-time database
+| | |
+|---|---|
+| **Hub model** | [`irfan-54/waterguard-xlmr`](https://huggingface.co/irfan-54/waterguard-xlmr) |
+| **Base** | `xlm-roberta-base` (125M params) |
+| **Task** | 4-class multilingual sequence classification |
+| **Labels** | `leakage` · `contamination` · `blockage` · `other` |
+| **Languages** | Tamil Unicode · Tanglish · English |
+| **Training hardware** | Local machine (CUDA when available) |
+| **Inference** | PyTorch + Hugging Face `transformers` on FastAPI startup |
 
-### Backend
-- **FastAPI** - High-performance API framework
-- **PyTorch** - Deep learning framework
-- **Transformers** - HuggingFace model library
-- **Supabase** - PostgreSQL database & auth
-- **Python 3.8+** - Core runtime
+### Training configuration
 
-### AI/ML Models
-- **XLM-RoBERTa** - Multilingual text classification
-- **CLIP** - Image-text understanding
-- **Custom Fine-tuning** - Domain-specific optimization
+| Hyperparameter | Value |
+|---|---|
+| Total samples | **67,604** |
+| Training samples | **60,843** (90%) |
+| Validation samples | **6,761** (10%) |
+| Total training time | **~2 hrs 54 mins** (10,422 seconds) |
+| Epochs | **3** |
+| Batch size | **16** |
+| Learning rate | **2e-5** |
+| Max sequence length | **128** |
+| Weight decay | **0.01** |
+| Eval strategy | Per epoch (`load_best_model_at_end`) |
+| Mixed precision | FP16 when GPU available |
+| Optimizer | AdamW (Hugging Face `Trainer` default) |
 
----
+### Per-epoch validation metrics
 
-## 🚀 Quick Start
+| Epoch | Eval Loss | Accuracy | Precision | Recall | F1 (weighted) |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | 0.013748 | 99.78% | 0.9978 | 0.9978 | 0.9978 |
+| 2 | 0.002052 | 99.96% | 0.9996 | 0.9996 | 0.9996 |
+| 3 | 0.003287 | 99.91% | 0.9991 | 0.9991 | 0.9991 |
+
+### Final metrics (held-out validation)
+
+| Metric | Score |
+|---|---|
+| **Accuracy** | **99.96%** |
+| **F1 Score** | **0.9996** |
+| Precision (weighted) | 0.9995 |
+| Recall (weighted) | 0.9996 |
+
+**Pipeline:** Rule-based keyword layer (Tamil/Tanglish/English) → XLM-RoBERTa softmax → human-readable label mapping → fused with CLIP image score → risk tier (`HIGH` / `MEDIUM` / `LOW`) and confidence 60–95%.
+
+<hr/>
+
+## 🖼️ **Image Verification — CLIP**
+
+| | |
+|---|---|
+| **Model** | [`openai/clip-vit-base-patch32`](https://huggingface.co/openai/clip-vit-base-patch32) |
+| **Library** | Hugging Face `CLIPModel` + `CLIPProcessor` |
+| **Purpose** | Confirms uploaded photos depict genuine water-related incidents |
+
+**How it works**
+
+1. Image bytes decoded to RGB via Pillow.
+2. **20+ text prompts** scored against the image (leakage, blockage, contamination, clean/normal).
+3. **Rule layer** (priority: contamination → leakage → blockage) matches prompt labels when softmax probability **> 0.45**.
+4. If no rule fires, **weighted category scores** boost leakage/contamination and dampen false blockage signals.
+5. Output: `image_prediction` + `image_confidence` merged 50/50 with text in `run_ai_analysis`.
+
+<hr/>
+
+## 🗃️ **Dataset**
+
+| | |
+|---|---|
+| **Total samples** | **67,604** labeled examples |
+| **Source file** | `datasets/final_training.jsonl` (training script) |
+| **Languages** | Tamil Unicode · Tanglish (code-mixed) · English |
+| **Curation** | Manually curated citizen-style reports + synthetic augmentation |
+
+### Label distribution (training set)
+
+| Label | Samples | Share |
+|---|---|---|
+| contamination | 16,762 | 24.8% |
+| leakage | 16,281 | 24.1% |
+| blockage | 18,234 | 27.0% |
+| other | 16,327 | 24.1% |
+
+Stratified train/validation split (`random_state=42`) — see `backend/training_log.txt`.
+
+<hr/>
+
+## 🚀 **Getting Started**
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Git
 
-### 📦 Backend Setup
+- **Node.js** 18+
+- **Python** 3.10+
+- **Supabase** project (Auth + PostgreSQL + Storage bucket `report-images`)
+- **Resend** API key (optional, for emails)
+- **CUDA GPU** recommended for local backend AI inference
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/waterguard.git
-cd waterguard/backend
+### Environment variables
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+**`frontend/.env`**
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Start the server
-python main.py
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-**Backend runs at: `http://127.0.0.1:8000`**
+**`backend/.env`**
 
-### 🎨 Frontend Setup
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-service-role-key
+RESEND_API_KEY=re_xxxxxxxx
+EMAIL_FROM=WaterGuard <noreply@yourdomain.com>
+FRONTEND_URL=http://localhost:5173
+ENV=development
+```
+
+### Frontend
 
 ```bash
-# Frontend setup
-cd waterguard/frontend
-
-# Install dependencies
+cd frontend
 npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API endpoints
-
-# Start development server
 npm run dev
 ```
 
-**Frontend runs at: `http://localhost:5173`**
+→ `http://localhost:5173`
 
-### 📚 API Documentation
-Visit `http://127.0.0.1:8000/docs` for interactive API documentation.
+### Backend
 
----
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate  |  macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+# GPU torch (optional):
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
 
-## 🤖 Model Details
+→ API `http://127.0.0.1:8000` · OpenAPI docs `http://127.0.0.1:8000/docs`
 
-### Training Dataset
-- **Size**: 20,000+ labeled samples
-- **Languages**: English (60%), Tamil (40%)
-- **Categories**:
-  - Leakage (water pipe bursts, supply issues)
-  - Contamination (pollution, quality issues)
-  - Blockage (drainage, sewer problems)
-  - Other (non-water related)
-- **Data Sources**: Real citizen reports, synthetic augmentation
+<hr/>
 
-### Model Architecture
-- **Base Model**: XLM-RoBERTa-base (125M parameters)
-- **Fine-tuning**: Task-specific head for 4-class classification
-- **Training**: 3 epochs, batch size 4, fp16 mixed precision
-- **Hardware**: Optimized for 6GB GPU memory
+## 🐳 **Deployment**
 
-### Performance Metrics
-- **Accuracy**: 87.3% (test set)
-- **F1-Score**: 0.86 (weighted average)
-- **Precision**: 0.88
-- **Recall**: 0.87
-- **Inference**: 1.2 seconds (CPU), 0.3 seconds (GPU)
-- **Model Size**: 500MB
+| Layer | Platform | Details |
+|---|---|---|
+| **Frontend** | [Vercel](https://vercel.com/) | SPA rewrites via `frontend/vercel.json` → `index.html` |
+| **Backend** | [Hugging Face Spaces](https://huggingface.co/spaces) | Docker SDK · `backend/Dockerfile` · Uvicorn on **port 7860** |
+| **Database** | Supabase | Managed PostgreSQL + Auth + Storage |
+| **Email** | Resend | Report lifecycle notifications |
 
----
+**Production checklist:** Set `VITE_API_BASE_URL` to your HF Space URL · configure CORS origins on FastAPI · use Supabase service role key only on backend · enable RLS policies on `reports`, `profiles`, `comments`, `activity_logs`.
 
-## 📸 Screenshots
+<hr/>
 
-### 🏠 Citizen Interface
-*![Citizen Dashboard](screenshots/citizen-dashboard.png)*
-*![Report Creation](screenshots/create-report.png)*
-*![Report Tracking](screenshots/report-status.png)*
+## 📁 **Project Structure**
 
-### 🛡️ Admin Dashboard
-*![Admin Dashboard](screenshots/admin-dashboard.png)*
-*![Report Management](screenshots/reports-table.png)*
-*![Analytics View](screenshots/analytics.png)*
+```
+watergaurd-project/
+├── frontend/
+│   ├── src/
+│   │   ├── pages/          # Landing, Login, dashboards, CreateReport, Analytics, Map
+│   │   ├── components/     # Navbar, ProtectedRoute, ReportsMap, modals
+│   │   ├── context/        # AuthContext, ThemeContext
+│   │   ├── config/         # api.js (apiFetch + JWT)
+│   │   └── lib/            # supabase.js
+│   ├── vercel.json
+│   └── package.json
+├── backend/
+│   ├── main.py             # FastAPI routes
+│   ├── ai_processor.py     # XLM-RoBERTa inference + fusion
+│   ├── image_verifier.py   # CLIP verification
+│   ├── train_model.py      # Fine-tuning script
+│   ├── auth/               # JWT middleware (Supabase tokens)
+│   ├── email_service.py    # Resend
+│   ├── db.py               # Supabase client
+│   ├── Dockerfile
+│   └── requirements.txt
+└── README.md
+```
 
-### 🤖 AI Analysis
-*![AI Results](screenshots/ai-analysis.png)*
-*![Classification Details](screenshots/classification-details.png)*
+<hr/>
 
----
+## 🤝 **Contributing**
 
-## 🔮 Future Improvements
+1. Fork the repository and create a feature branch (`git checkout -b feat/your-feature`).
+2. Follow existing patterns: React functional components, FastAPI `Depends(get_current_user)`, Supabase for persistence.
+3. Run `npm run lint` in `frontend/` and test API flows against `/docs`.
+4. Open a PR with a clear description, screenshots for UI changes, and notes on env vars touched.
 
-### 🚀 Enhanced AI Capabilities
-- [ ] **Real-time Image Analysis**: Live camera feed processing
-- [ ] **Multi-language Expansion**: Support for 10+ languages
-- [ ] **Sentiment Analysis**: Detect urgency and user sentiment
-- [ ] **Geospatial Analysis**: Location-based pattern detection
+Issues and feature requests: [GitHub Issues](https://github.com/irfan-54/waterguard/issues).
 
-### 📱 Mobile Application
-- [ ] **React Native App**: Native mobile experience
-- [ ] **Push Notifications**: Real-time status updates
-- [ ] **Offline Mode**: Report submission without internet
-- [ ] **Camera Integration**: Direct photo capture
+<hr/>
 
-### 🏢 Municipal Features
-- [ ] **Department Integration**: Connect to municipal systems
-- [ ] **Workforce Management**: Assign and track field workers
-- [ ] **Resource Planning**: Predictive maintenance scheduling
-- [ ] **Citizen Engagement**: Community feedback system
+## 📄 **License**
 
-### 🔧 Technical Enhancements
-- [ ] **Microservices Scaling**: Kubernetes deployment
-- [ ] **Real-time Analytics**: WebSocket-based live updates
-- [ ] **Advanced Security**: OAuth2, rate limiting
-- [ ] **Performance Monitoring**: APM integration
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
 
----
-
-## 📊 Project Statistics
-
-- **Lines of Code**: 15,000+
-- **AI Model Size**: 1.1GB (fine-tuned XLM-RoBERTa)
-- **Dataset Size**: 20,000+ training samples
-- **Supported Languages**: 2 (English, Tamil)
-- **API Endpoints**: 15+
-- **Response Time**: <200ms (API), <2s (AI analysis)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-
----
-
-## 🙏 Acknowledgments
-
-- **HuggingFace** - For the Transformers library and pre-trained models
-- **Supabase** - For the excellent backend-as-a-service platform
-- **OpenAI** - For the CLIP model architecture
-- **FastAPI Team** - For the amazing web framework
-- **React Community** - For the incredible ecosystem
-
----
-
-## 📞 Contact
-
-- **Project Maintainers**: WaterGuard Team
-- **Email**: arab.irfan522@gmail.com
-- **Website**: https://waterguard.ai
-- **Issues**: [GitHub Issues](https://github.com/irfan-54/waterguard/issues)
-
----
+<hr/>
 
 <div align="center">
 
-**🌊 Protecting Water Resources with AI 🌊**
+**Built with ❤️ by C. Aksaya & M. Mohamed Irfanullah**
 
-Made with ❤️ by the WaterGuard Team
+*B.Tech Artificial Intelligence & Data Science*
+
+**Team WaterGuard**
 
 </div>
-pythonn anywhere
-
-
-
