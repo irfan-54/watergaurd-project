@@ -262,6 +262,7 @@ watergaurd-project/
 │   ├── image_verifier.py   # CLIP verification
 │   ├── train_model.py      # Fine-tuning script
 │   ├── auth/               # JWT middleware (Supabase tokens)
+│   ├── models/             # XLM-R model folder 
 │   ├── email_service.py    # Resend
 │   ├── db.py               # Supabase client
 │   ├── Dockerfile
