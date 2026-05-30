@@ -79,6 +79,7 @@ frontend_src.txt
 hf_structure.txt
 backend/training_log.txt
 backend/temp_*.txt
+WaterGuard_Technical_Architecture_Guide.md
 
 # 💻 Editor
 .vscode/

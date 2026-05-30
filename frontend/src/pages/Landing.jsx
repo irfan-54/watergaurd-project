@@ -308,12 +308,16 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 24px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center' }}>
         <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <AnimatedLogo size={16} intensity={0.3} textSize={14} showText={true} />
         </div>
-        <span style={{ margin: '0 16px' }}>·</span>
-        © 2025 WaterGuard. All rights reserved.
+        <div style={{ fontSize: 14, lineHeight: 1.4, color: 'rgba(255,255,255,0.3)' }}>
+          © 2025 WaterGuard. All rights reserved.
+        </div>
+        <div style={{ fontSize: 21, lineHeight: 1.4 }}>
+          🐰 🌼
+        </div>
       </footer>
     </div>
   )
