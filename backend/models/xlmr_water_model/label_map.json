@@ -1,0 +1,6 @@
+{
+  "contamination": 0,
+  "leakage": 1,
+  "blockage": 2,
+  "other": 3
+}

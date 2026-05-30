@@ -3,7 +3,7 @@ archive/
 project_archive/
 
 # 🤖 AI / ML
-backend/models/
+backend/models/xlmr_water_model/model.safetensors
 backend/datasets/
 backend/results/
 

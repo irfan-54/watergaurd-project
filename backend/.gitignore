@@ -1,6 +1,5 @@
 # 🔥 HEAVY FILES
-models/
-datasets/
+models/xlmr_water_model/model.safetensors
 
 # Python
 __pycache__/
@@ -19,3 +18,16 @@ temp_*
 
 # Training
 training_log.txt
+
+
+
+# Analysis/temp files
+structure.txt
+backend_tree.txt
+folder_sizes.txt
+frontend_src.txt
+hf_structure.txt
+project_structure.txt
+
+# Editor
+.vscode/
