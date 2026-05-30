@@ -69,8 +69,18 @@ Thumbs.db
 # 🛑 Safety
 **/.git
 
+# 📊 Analysis files
 project_structure.txt
 structure.txt
+finalstructure.txt
+backend_tree.txt
+folder_sizes.txt
+frontend_src.txt
+hf_structure.txt
 backend/training_log.txt
 backend/temp_*.txt
+
+# 💻 Editor
+.vscode/
+
 !README.md
