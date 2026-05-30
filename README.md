@@ -270,25 +270,6 @@ watergaurd-project/
 └── README.md
 ```
 
-<hr/>
-
-## 🤝 **Contributing**
-
-1. Fork the repository and create a feature branch (`git checkout -b feat/your-feature`).
-2. Follow existing patterns: React functional components, FastAPI `Depends(get_current_user)`, Supabase for persistence.
-3. Run `npm run lint` in `frontend/` and test API flows against `/docs`.
-4. Open a PR with a clear description, screenshots for UI changes, and notes on env vars touched.
-
-Issues and feature requests: [GitHub Issues](https://github.com/irfan-54/waterguard/issues).
-
-<hr/>
-
-## 📄 **License**
-
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
-
-<hr/>
-
 <div align="center">
 
 **Built by C. Aksaya & M. Mohamed Irfanullah**
